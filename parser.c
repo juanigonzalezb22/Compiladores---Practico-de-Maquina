@@ -62,7 +62,7 @@ void especificador_tipo( set folset )
 			break;
 			
 		default:
-			error_handler(10);
+			error_handler(18);
 	}
 }
 
@@ -83,7 +83,7 @@ void especificador_declaracion( set folset )
 			break;
 		
 		default:
-			error_handler(10);
+			error_handler(19);
 	}
 }
 
@@ -287,7 +287,7 @@ void proposicion( set folset )
 			break;
 		
 		default:
-			error_handler(10);
+			error_handler(26);
 	}
 }
 
@@ -365,7 +365,7 @@ void proposicion_e_s( set folset )
 			break;
 		
 		default:
-			error_handler(10);
+			error_handler(29);
 	}
 }
 
@@ -480,7 +480,7 @@ void factor( set folset )
 			break;
 			
 		default:
-			error_handler(10);
+			error_handler(32);
 	}
 }
 
@@ -544,6 +544,6 @@ void constante( set folset )
 			break;
 		
 		default:
-			error_handler(10);
+			error_handler(33);
 	}
 }
