@@ -27,13 +27,13 @@ int main(int argc, char *argv[])
 void unidad_traduccion( set folset )
 {
 	while(lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
-		declaraciones(folset);
+		declaraciones( (folset | CVOID | CCHAR | CINT | CFLOAT));
 }
 
 
 void declaraciones( set folset )
 {	
-	especificador_tipo(folset);
+	especificador_tipo(folset | CIDENT | CPAR_ABR | CASIGNAC |CCOR_ABR );
 	
 	match(CIDENT, 10);
 	
@@ -42,7 +42,7 @@ void declaraciones( set folset )
 
 
 void especificador_tipo( set folset )
-{	
+{
 	switch(lookahead())
 	{
 		case CVOID:
@@ -72,14 +72,14 @@ void especificador_declaracion( set folset )
 	switch(lookahead())
 	{
 		case CPAR_ABR:
-			definicion_funcion(folset);
+			definicion_funcion( folset );
 			break;
 		
 		case CASIGNAC:
 		case CCOR_ABR:
 		case CCOMA:
 		case CPYCOMA:
-			declaracion_variable(folset);
+			declaracion_variable( folset );
 			break;
 		
 		default:
@@ -93,7 +93,7 @@ void definicion_funcion( set folset )
 	match(CPAR_ABR, 10);
 
 	if(lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
-		lista_declaraciones_param(folset);
+		lista_declaraciones_param(folset | CPAR_CIE | CLLA_ABR );
 
 	match(CPAR_CIE, 10);
 
@@ -103,19 +103,19 @@ void definicion_funcion( set folset )
 
 void lista_declaraciones_param( set folset )
 {
-	declaracion_parametro(folset);
+	declaracion_parametro(folset | CCOMA | CVOID | CCHAR | CINT | CFLOAT);
 
 	while(lookahead_in(CCOMA))
 	{
 		scanner();
-		declaracion_parametro(folset);
+		declaracion_parametro(folset | CCOMA | CVOID | CCHAR | CINT | CFLOAT);
 	}
 }
 
 
 void declaracion_parametro( set folset )
 {
-	especificador_tipo(folset);
+	especificador_tipo(folset | CAMPER | CIDENT | CCOR_ABR | CCOR_CIE);
 
 	if(lookahead_in(CAMPER))
 		scanner();
@@ -134,20 +134,20 @@ void lista_declaraciones_init( set folset )
 {
 	match(CIDENT, 10);
 
-	declarador_init(folset);
+	declarador_init(folset | CCOMA | CIDENT | CASIGNAC | CCOR_ABR);
 
 	while(lookahead_in(CCOMA))
 	{
 		scanner();
 		match(CIDENT, 10);
-		declarador_init(folset);
+		declarador_init(folset | CCOMA | CIDENT | CASIGNAC | CCOR_ABR);
 	}
 }
 
 
 void declaracion_variable( set folset )
 {
-	declarador_init(folset);
+	declarador_init(folset | CCOMA | CIDENT | CPYCOMA);
 
 	if(lookahead_in(CCOMA))
 	{
@@ -172,7 +172,7 @@ void declarador_init( set folset )
 			scanner();
 			
 			if(lookahead_in(CCONS_ENT))
-				constante(folset);
+				constante(folset | CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE);
 
 			match(CCOR_CIE, 10);
 
@@ -180,7 +180,7 @@ void declarador_init( set folset )
 			{
 				scanner();
 				match(CLLA_ABR, 10);
-				lista_inicializadores(folset);
+				lista_inicializadores(folset | CLLA_CIE);
 				match(CLLA_CIE, 10);
 			}
 			break;
@@ -190,12 +190,12 @@ void declarador_init( set folset )
 
 void lista_inicializadores( set folset )
 {
-	constante(folset);
+	constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
 
 	while(lookahead_in(CCOMA))
 	{
 		scanner();
-		constante(folset);
+		constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
 	}
 }
 
@@ -205,12 +205,14 @@ void proposicion_compuesta( set folset )
 	match(CLLA_ABR, 10);
 
 	if(lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
-		lista_declaraciones(folset);
+		lista_declaraciones(folset | CLLA_ABR | CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG |
+						 CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR |
+						 CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN | CLLA_CIE);
 
 	if(lookahead_in(CLLA_ABR | CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG |
 						 CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR |
 						 CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN))
-		lista_proposiciones(folset);
+		lista_proposiciones(folset | CLLA_CIE);
 
 	match(CLLA_CIE, 10);
 }
@@ -218,18 +220,18 @@ void proposicion_compuesta( set folset )
 
 void lista_declaraciones( set folset )
 {
-	declaracion(folset); 
+	declaracion(folset | CVOID | CCHAR | CINT | CFLOAT ); 
 
 	while(lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
-		declaracion(folset); 
+		declaracion(folset | CVOID | CCHAR | CINT | CFLOAT); 
 }
 
 
 void declaracion( set folset )
 {
-	especificador_tipo(folset);
+	especificador_tipo(folset | CIDENT |CPYCOMA);
 
-	lista_declaraciones_init(folset);
+	lista_declaraciones_init(folset | CPYCOMA);
 
 	match(CPYCOMA, 10);
 }
