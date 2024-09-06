@@ -79,3 +79,14 @@ set lookahead_in(set conjunto)
 {
 	return lookahead() & conjunto;
 }
+
+
+void test( set conjunto1, set puntos_de_reconfiguracion, int nro_error ){
+	if( !lookahead_in(conjunto1) ){
+		error_print(nro_error);
+		conjunto1 |= puntos_de_reconfiguracion;
+		while(!lookahead_in(conjunto1))
+			scanner();
+	}
+}
+

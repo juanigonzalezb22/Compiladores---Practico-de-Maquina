@@ -8,7 +8,6 @@
 int last_call=0;
 
 /*********** prototipos *************/
-
 void unidad_traduccion(set);
 void declaraciones(set);
 void especificador_tipo(set);
