@@ -47,19 +47,19 @@ void error_print(int ne)
 		case 35: printf("\t Error %d: Falta [\n", ne); break;
 		/* posibles errores personalizados (que no sean parafrasis de errores ya existentes) 36-39*/
 		/* errores de recuperacion de errores */
-		case 40: printf("\t Error %d: Al inicio del programa\n", ne); break;
-		case 41: printf("\t Error %d: Simbolo inesperado o falta especificador de tipo\n", ne); break;
+		case 40: printf("\t Error %d: Al inicio del programa\n", ne); break; 
+		case 41: printf("\t Error %d: Simbolo inesperado o falta especificador de tipo\n", ne); break; //ver
 		case 42: printf("\t Error %d: Simbolo inesperado despues de especificador de tipo\n", ne); break;
-		case 43: printf("\t Error %d: Simbolo inesperado o falta simb. al comienzo de especif. de declaracion\n", ne); break;
-		case 44: printf("\t Error %d: Simbolo inesperado despues de especificador de declaracion\n", ne); break;
+		case 43: printf("\t Error %d: Simbolo inesperado o falta simb. al comienzo de especif. de declaracion\n", ne); break; //ver
+		case 44: printf("\t Error %d: Simbolo inesperado despues de especificador de declaracion\n", ne); break; //ver
 		case 45: printf("\t Error %d: Simbolo inesperado despues de declarar un parametro\n", ne); break;
-		case 46: printf("\t Error %d: Simbolo inesperado o falta simb. al comienzo de lista decl. init\n", ne); break;
+		case 46: printf("\t Error %d: Simbolo inesperado o falta simb. al comienzo de lista decl. init\n", ne); break; 
 		case 47: printf("\t Error %d: Simbolo inesperado al comienzo de declarador init\n", ne); break;
 		case 48: printf("\t Error %d: Simbolo inesperado despues de declarador init\n", ne); break;
 		case 49: printf("\t Error %d: Simbolo inesperado o falta simb. al comienzo de proposicion compuesta\n", ne); break;
 		case 50: printf("\t Error %d: Simbolo inesperado despues de proposicion compuesta\n", ne); break;
 		case 51: printf("\t Error %d: Simbolo inesperado despues de declaracion\n", ne); break;
-		case 52: printf("\t Error %d: Simbolo inesperado o falta simb. al comienzo de proposicion\n", ne); break;
+		case 52: printf("\t Error %d: Simbolo inesperado o falta simb. al comienzo de proposicion\n", ne); break; //ver
 		case 53: printf("\t Error %d: Simbolo inesperado despues de proposicion entrada - salida\n", ne); break;
 		case 54: printf("\t Error %d: Simbolo inesperado despues de proposicion retorno\n", ne); break;
 		case 55: printf("\t Error %d: Simbolo inesperado despues de proposicion expresion\n", ne); break;

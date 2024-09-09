@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
 void unidad_traduccion( set folset )
 {
-	test(CVOID|CCHAR|CINT|CFLOAT|folset, 0 ,1);
+	test(CVOID|CCHAR|CINT|CFLOAT|folset, 0 ,40);
 	while(lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
 		declaraciones(folset | CVOID | CCHAR | CINT | CFLOAT);
 }
@@ -61,7 +61,7 @@ void especificador_tipo( set folset )
 		default:
 			error_handler(18);
 	}
-	test(folset,0,1);
+	test(folset,0,42);
 }
 
 
@@ -102,11 +102,12 @@ void definicion_funcion( set folset )
 void lista_declaraciones_param( set folset )
 {
 	declaracion_parametro(folset | CCOMA | CVOID | CCHAR | CINT | CFLOAT);
-
+	test(CCOMA | folset, CVOID | CCHAR | CINT | CFLOAT ,45); //Ver nro de error xdxd
 	while(lookahead_in(CCOMA))
 	{
 		scanner();
 		declaracion_parametro(folset | CCOMA | CVOID | CCHAR | CINT | CFLOAT);
+		test(CCOMA | folset, CVOID | CCHAR | CINT | CFLOAT ,45);
 	}
 }
 
@@ -125,22 +126,23 @@ void declaracion_parametro( set folset )
 		scanner();
 		match(CCOR_CIE, 10);
 	}
-	test(folset,0,1);
+	//test(folset,0,45); Ver como decisión de diseño XD
 }
 
 
 void lista_declaraciones_init( set folset )
 {
-	test(CIDENT, folset | CCOMA | CASIGNAC | CCOR_ABR, 1); //DUDA
+	test(CIDENT, folset | CCOMA | CASIGNAC | CCOR_ABR, 46); 
 	match(CIDENT, 10);
 
 	declarador_init(folset | CCOMA | CIDENT | CASIGNAC | CCOR_ABR); 
-
-	while(lookahead_in(CCOMA))
+	test(CCOMA | folset, CIDENT | CASIGNAC | CCOR_ABR,48);
+	while(lookahead_in(CCOMA | CIDENT | CASIGNAC | CCOR_ABR ))
 	{
 		scanner();
 		match(CIDENT, 10);
 		declarador_init(folset | CCOMA | CIDENT | CASIGNAC | CCOR_ABR);
+		test(CCOMA | folset, CIDENT | CASIGNAC | CCOR_ABR,48);
 	}
 }
 
@@ -161,7 +163,7 @@ void declaracion_variable( set folset )
 
 void declarador_init( set folset )
 {
-	test(CASIGNAC|CCOR_ABR|folset,CCOR_CIE | CCONS_ENT | CLLA_ABR | CLLA_CIE | CCONS_FLO | CCONS_CAR, 1);
+	test(CASIGNAC|CCOR_ABR|folset,CCOR_CIE | CCONS_ENT | CLLA_ABR | CLLA_CIE | CCONS_FLO | CCONS_CAR, 47);
 	switch(lookahead())
 	{
 		case CASIGNAC:
@@ -192,18 +194,19 @@ void declarador_init( set folset )
 			}
 			break;
 	}
-	test(folset,0,1);
+	test(folset,0,48);
 }
 
 
 void lista_inicializadores( set folset )
 {
 	constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
-
-	while(lookahead_in(CCOMA))
+	test(CCOMA | folset, CCONS_ENT | CCONS_FLO | CCONS_CAR, 63);
+	while(lookahead_in(CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR))
 	{
 		scanner();
 		constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
+		test(CCOMA | folset, CCONS_ENT | CCONS_FLO | CCONS_CAR, 63);
 	}
 }
 
@@ -212,7 +215,7 @@ void proposicion_compuesta( set folset )
 {
 	test(CLLA_ABR, folset|CLLA_CIE|CVOID | CCHAR | CINT | CFLOAT | CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG |
 						 CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR |
-						 CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN,1);
+						 CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN,49);
 	match(CLLA_ABR, 10);
 
 	if(lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
@@ -226,14 +229,14 @@ void proposicion_compuesta( set folset )
 		lista_proposiciones(folset | CLLA_CIE);
 
 	match(CLLA_CIE, 10);
-	test(folset,0,1);
+	test(folset,0,50);
 }
 
 
 void lista_declaraciones( set folset )
 {
 	declaracion(folset | CVOID | CCHAR | CINT | CFLOAT ); 
-
+	
 	while(lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
 		declaracion(folset | CVOID | CCHAR | CINT | CFLOAT); 
 }
@@ -246,7 +249,7 @@ void declaracion( set folset )
 	lista_declaraciones_init(folset | CPYCOMA);
 
 	match(CPYCOMA, 10);
-	test(folset,0,1);
+	test(folset,0,51);
 }
 
 
@@ -392,7 +395,7 @@ void proposicion_e_s( set folset )
 		default:
 			error_handler(29);
 	}
-	test(folset,0,1);
+	test(folset,0,53);
 }
 
 
@@ -403,7 +406,7 @@ void proposicion_retorno( set folset )
 	expresion(folset | CPYCOMA);
 	
 	match(CPYCOMA, 10);
-	test(folset,0,1);
+	test(folset,0,54);
 }
 
 
@@ -413,7 +416,7 @@ void proposicion_expresion( set folset )
 		expresion(folset | CPYCOMA);
 
 	match(CPYCOMA, 10);
-	test(folset,0,1);
+	test(folset,0,55);
 }
 
 
@@ -448,7 +451,7 @@ void expresion( set folset )
 
 void expresion_simple( set folset )
 {
-	test(CIDENT|CCONS_ENT|CCONS_FLO|CCONS_CAR|CCONS_STR|CPAR_ABR|CNEG|CMAS|CMENOS,folset,1); //Punto de reconfiguración
+	test(CIDENT|CCONS_ENT|CCONS_FLO|CCONS_CAR|CCONS_STR|CPAR_ABR|CNEG|CMAS|CMENOS,folset,56); //Punto de reconfiguración
 	if(lookahead_in(CMAS | CMENOS))
 		scanner();
 
@@ -480,7 +483,7 @@ void termino( set folset )
 
 void factor( set folset )
 {
-	test(CIDENT|CCONS_ENT|CCONS_FLO|CCONS_CAR|CCONS_STR|CPAR_ABR|CNEG,folset,1);
+	test(CIDENT|CCONS_ENT|CCONS_FLO|CCONS_CAR|CCONS_STR|CPAR_ABR|CNEG,folset,57);
 
 	switch(lookahead())	
 	{
@@ -520,13 +523,13 @@ void factor( set folset )
 		default:
 			error_handler(32);
 	}
-	test(folset,0,1);
+	test(folset,0,58);
 }
 
 
 void variable( set folset )
 {
-	test(CIDENT, folset | CCOR_ABR | CCOR_CIE, 1);
+	test(CIDENT, folset | CCOR_ABR | CCOR_CIE, 59);
 	match(CIDENT, 10);
 
 	/* El alumno debera verificar con una consulta a TS
@@ -539,7 +542,7 @@ void variable( set folset )
 		expresion(folset|CCOR_CIE);
 		match(CCOR_CIE, 10);
 	}
-	test(folset,0,1);
+	test(folset,0,60);
 }
 
 
@@ -553,7 +556,7 @@ void llamada_funcion( set folset )
 		lista_expresiones(folset | CPAR_CIE);
 
 	match(CPAR_CIE, 10);
-	test(folset,0,1);
+	test(folset,0,61);
 }
 
 
@@ -573,7 +576,7 @@ void lista_expresiones( set folset )
 
 void constante( set folset )
 {
-	test(CCONS_ENT|CCONS_FLO|CCONS_CAR, folset, 1);
+	test(CCONS_ENT|CCONS_FLO|CCONS_CAR, folset, 62);
 	switch(lookahead())
 	{
 		case CCONS_ENT:
@@ -591,5 +594,5 @@ void constante( set folset )
 		default:
 			error_handler(33);
 	}
-	test(folset,0,1);
+	test(folset,0,63);
 }
