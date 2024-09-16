@@ -20,8 +20,9 @@ int main(int argc, char *argv[])
 void unidad_traduccion(set folset)
 {
 	test(CVOID | CCHAR | CINT | CFLOAT | folset, NADA , 40);
-	while (lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
+	while (lookahead_in(CVOID | CCHAR | CINT | CFLOAT)){
 		declaraciones(folset | CVOID | CCHAR | CINT | CFLOAT);
+	}
 }
 
 
@@ -37,7 +38,7 @@ void declaraciones(set folset)
 
 void especificador_tipo(set folset)
 {
-	test(CVOID | CCHAR | CINT | CFLOAT, folset, 1);
+	test(CVOID | CCHAR | CINT | CFLOAT, folset, 41);
 	switch (lookahead())
 	{
 	case CVOID:
@@ -65,6 +66,7 @@ void especificador_tipo(set folset)
 
 void especificador_declaracion(set folset)
 {
+	test(CPAR_ABR|CASIGNAC|CCOR_ABR|CCOMA|CPYCOMA,folset|CCONS_ENT|CCONS_FLO|CCONS_CAR|CCOR_CIE|CLLA_ABR|CLLA_CIE,43); //Nuevo test
 	switch (lookahead())
 	{
 	case CPAR_ABR:
@@ -75,7 +77,13 @@ void especificador_declaracion(set folset)
 	case CCOR_ABR:
 	case CCOMA:
 	case CPYCOMA:
-		declaracion_variable(folset);
+	case CCONS_ENT:
+	case CCONS_FLO:
+	case CCONS_CAR:
+	case CCOR_CIE:
+	case CLLA_ABR:
+	case CLLA_CIE:
+		declaracion_variable(folset|CCONS_ENT|CCONS_FLO|CCONS_CAR|CCOR_CIE|CLLA_ABR|CLLA_CIE);
 		break;
 
 	default:
@@ -85,7 +93,7 @@ void especificador_declaracion(set folset)
 
 
 void definicion_funcion(set folset)
-{
+{	
 	match(CPAR_ABR, 20);
 
 	if (lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
@@ -126,7 +134,7 @@ void declaracion_parametro(set folset)
 		scanner();
 		match(CCOR_CIE, 22);
 	}
-	// test(folset, NADA ,45);
+	 test(folset, NADA ,45);
 	// Se decidio no agregar el test ya que no se necesita porque esta incluido en lista_declaraciones_param
 }
 
@@ -159,31 +167,29 @@ void declaracion_variable(set folset)
 	}
 
 	match(CPYCOMA, 23);
+	test(folset, NADA , 60); //Será 60?
 }
 
 
-void declarador_init(set folset)
+void declarador_init(set folset) //Ver el tema de constante entera
 {
-	test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE | CCONS_ENT | CLLA_ABR | CLLA_CIE | CCONS_FLO | CCONS_CAR, 47);
+	test(CASIGNAC | CCOR_ABR| folset, NADA, 47); //cambios
 	switch (lookahead())
 	{
 	case CASIGNAC:
-		scanner();
-		constante(folset);
-		break;
-
-	case CCOR_ABR:
-	case CCOR_CIE:
-	case CCONS_ENT:
-	case CLLA_ABR:
-	case CLLA_CIE:
 	case CCONS_FLO:
 	case CCONS_CAR:
+		match(CASIGNAC,65);
+		constante(folset);
+		break;
+	case CCOR_ABR:
+	case CCOR_CIE:
+	case CLLA_ABR:
+	case CLLA_CIE:
 		scanner();
-
-		if (lookahead_in(CCONS_ENT))
+		if (lookahead_in(CCONS_ENT)){
 			constante(folset | CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE);
-
+		}
 		match(CCOR_CIE, 22);
 
 		if (lookahead_in(CASIGNAC))
@@ -194,6 +200,7 @@ void declarador_init(set folset)
 			match(CLLA_CIE, 25);
 		}
 		break;
+	default: error_handler(65);
 	}
 	test(folset, NADA , 48);
 }

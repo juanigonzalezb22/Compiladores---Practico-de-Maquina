@@ -14,7 +14,7 @@ void scanner()
 	if(i == NADA)
 		sbol->codigo = CEOF;
 	/* yylex retorna 0 si llego a fin de archivo */
-	//printf("Scanner: %s\n", sbol->lexema);					//DESCOMENTAR EN CASO DE EMERGENCIA.
+	printf("Scanner: %s\n", sbol->lexema);					//DESCOMENTAR EN CASO DE EMERGENCIA.
 	liberar = linea;
 	linea = (char *) malloc (strlen(linea) + strlen (token1.lexema) + 3);
 	strcpy(linea, liberar);
@@ -63,7 +63,7 @@ void init_parser(int argc, char *argv[])
 void match(set codigo, int ne)
 {
     if(lookahead() & codigo){
-			//printf("Match: %s\n", lookahead_lexema());					//DESCOMENTAR EN CASO DE EMERGENCIA.
+			printf("Match: %s\n", lookahead_lexema());					//DESCOMENTAR EN CASO DE EMERGENCIA.
 			scanner();
 		} else
         error_handler(ne);
