@@ -3,7 +3,6 @@
 int main(int argc, char *argv[])
 {
 	init_parser(argc, argv);
-
 	unidad_traduccion(CEOF);
 
 	match(CEOF, 1);
@@ -18,20 +17,18 @@ int main(int argc, char *argv[])
 /********* funciones del parser ***********/
 
 void unidad_traduccion(set folset)
-{
+{	
 	test(CVOID | CCHAR | CINT | CFLOAT | folset, NADA , 40);
 	while (lookahead_in(CVOID | CCHAR | CINT | CFLOAT)){
-		declaraciones(folset | CVOID | CCHAR | CINT | CFLOAT);
+		declaraciones(CVOID | CCHAR | CINT | CFLOAT | folset);
 	}
 }
 
 
 void declaraciones(set folset)
 {
-	especificador_tipo(folset | CIDENT | CPAR_ABR | CASIGNAC | CCOR_ABR);
-
+	especificador_tipo(CIDENT | CPAR_ABR | CASIGNAC | CCOR_ABR | CCOMA | CPYCOMA| folset);
 	match(CIDENT, 17);
-
 	especificador_declaracion(folset);
 }
 
@@ -66,7 +63,7 @@ void especificador_tipo(set folset)
 
 void especificador_declaracion(set folset)
 {
-	test(CPAR_ABR|CASIGNAC|CCOR_ABR|CCOMA|CPYCOMA,folset|CCONS_ENT|CCONS_FLO|CCONS_CAR|CCOR_CIE|CLLA_ABR|CLLA_CIE,43); //Nuevo test
+	test(CPAR_ABR|CASIGNAC|CCOR_ABR|CCOMA|CPYCOMA,folset,43); //Nuevo test, saqué los puntos de reconfiguración
 	switch (lookahead())
 	{
 	case CPAR_ABR:
@@ -83,7 +80,7 @@ void especificador_declaracion(set folset)
 	case CCOR_CIE:
 	case CLLA_ABR:
 	case CLLA_CIE:
-		declaracion_variable(folset|CCONS_ENT|CCONS_FLO|CCONS_CAR|CCOR_CIE|CLLA_ABR|CLLA_CIE);
+		declaracion_variable(CCONS_ENT|CCONS_FLO|CCONS_CAR|CCOR_CIE|folset); //SI? //Le saqué las llaves
 		break;
 
 	default:
@@ -97,7 +94,7 @@ void definicion_funcion(set folset)
 	match(CPAR_ABR, 20);
 
 	if (lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
-		lista_declaraciones_param(folset | CPAR_CIE | CLLA_ABR);
+		lista_declaraciones_param( CPAR_CIE | CLLA_ABR| folset);
 
 	match(CPAR_CIE, 21);
 
@@ -140,17 +137,16 @@ void declaracion_parametro(set folset)
 
 
 void lista_declaraciones_init(set folset)
-{
+{	
 	test(CIDENT, folset | CCOMA | CASIGNAC | CCOR_ABR, 46);
 	match(CIDENT, 17);
-
-	declarador_init(folset | CCOMA | CIDENT | CASIGNAC | CCOR_ABR);
+	declarador_init( CCOMA | CIDENT | CASIGNAC | CCOR_ABR | folset);
 	test(CCOMA | folset, CIDENT | CASIGNAC | CCOR_ABR, 48);
 	while (lookahead_in(CCOMA | CIDENT | CASIGNAC | CCOR_ABR))
 	{
 		match(CCOMA, 64);
 		match(CIDENT, 17);
-		declarador_init(folset | CCOMA | CIDENT | CASIGNAC | CCOR_ABR);
+		declarador_init( CCOMA | CIDENT | CASIGNAC | CCOR_ABR | folset);
 		test(CCOMA | folset, CIDENT | CASIGNAC | CCOR_ABR, 48);
 	}
 }
@@ -158,28 +154,28 @@ void lista_declaraciones_init(set folset)
 
 void declaracion_variable(set folset)
 {
-	declarador_init(folset | CCOMA | CIDENT | CPYCOMA);
+	declarador_init( CCOMA | CIDENT | CPYCOMA | folset );
 
 	if (lookahead_in(CCOMA))
 	{
 		scanner();
-		lista_declaraciones_init(folset | CPYCOMA);
+		lista_declaraciones_init(CPYCOMA| folset );
 	}
 
 	match(CPYCOMA, 23);
-	test(folset, NADA , 60); //Será 60?
+	test(folset, NADA , 51); //ver codigo de error y preguntar al edgardo quizás xdxd
 }
 
 
-void declarador_init(set folset) //Ver el tema de constante entera
-{
-	test(CASIGNAC | CCOR_ABR| folset, NADA, 47); //cambios
+void declarador_init(set folset) //Ver el tema de constantes
+{	
+	test(CASIGNAC | CCOR_ABR | CCOMA | CPYCOMA	| folset, CCOR_CIE| CLLA_ABR | CLLA_CIE | CCONS_FLO | CCONS_CAR, 47); //cambios TENGO QUE DESCOMENTAR
 	switch (lookahead())
 	{
 	case CASIGNAC:
 	case CCONS_FLO:
 	case CCONS_CAR:
-		match(CASIGNAC,65);
+		match(CASIGNAC,66);
 		constante(folset);
 		break;
 	case CCOR_ABR:
@@ -188,19 +184,17 @@ void declarador_init(set folset) //Ver el tema de constante entera
 	case CLLA_CIE:
 		scanner();
 		if (lookahead_in(CCONS_ENT)){
-			constante(folset | CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE);
+			constante(CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE| folset );
 		}
 		match(CCOR_CIE, 22);
-
 		if (lookahead_in(CASIGNAC))
 		{
 			scanner();
 			match(CLLA_ABR, 24);
-			lista_inicializadores(folset | CLLA_CIE);
+			lista_inicializadores( CLLA_CIE | folset );
 			match(CLLA_CIE, 25);
 		}
 		break;
-	default: error_handler(65);
 	}
 	test(folset, NADA , 48);
 }
@@ -257,7 +251,7 @@ void declaracion(set folset)
 	lista_declaraciones_init(folset | CPYCOMA);
 
 	match(CPYCOMA, 23);
-	test(folset, NADA , 51);
+	test(folset, NADA , 51); //chusmear
 }
 
 
@@ -554,6 +548,7 @@ void variable(set folset)
 	{
 		scanner();
 		expresion(folset | CCOR_CIE);
+		printf("entra 3\n");
 		match(CCOR_CIE, 22);
 	}
 	test(folset, NADA , 60);

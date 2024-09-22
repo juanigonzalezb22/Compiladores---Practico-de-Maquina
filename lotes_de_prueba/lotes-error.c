@@ -234,4 +234,3 @@ void fmain (){
     a = 2*a;
     cout << << b;
 }
-

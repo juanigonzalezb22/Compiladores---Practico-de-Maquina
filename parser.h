@@ -37,3 +37,4 @@ void variable(set);
 void llamada_funcion(set);
 void lista_expresiones(set);
 void constante(set);
+void imprimir_set(set);

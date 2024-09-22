@@ -14,7 +14,7 @@ void scanner()
 	if(i == NADA)
 		sbol->codigo = CEOF;
 	/* yylex retorna 0 si llego a fin de archivo */
-	printf("Scanner: %s\n", sbol->lexema);					//DESCOMENTAR EN CASO DE EMERGENCIA.
+	//printf("Scanner: %s\n", sbol->lexema);					//DESCOMENTAR EN CASO DE EMERGENCIA.
 	liberar = linea;
 	linea = (char *) malloc (strlen(linea) + strlen (token1.lexema) + 3);
 	strcpy(linea, liberar);
@@ -63,7 +63,7 @@ void init_parser(int argc, char *argv[])
 void match(set codigo, int ne)
 {
     if(lookahead() & codigo){
-			printf("Match: %s\n", lookahead_lexema());					//DESCOMENTAR EN CASO DE EMERGENCIA.
+			//printf("Match: %s\n", lookahead_lexema());					//DESCOMENTAR EN CASO DE EMERGENCIA.
 			scanner();
 		} else
         error_handler(ne);
@@ -89,10 +89,20 @@ set lookahead_in(set conjunto)
 
 void test( set conjunto1, set puntos_de_reconfiguracion, int nro_error ){
 	if( !lookahead_in(conjunto1) ){
-		error_print(nro_error);
+		error_handler(nro_error);
 		conjunto1 |= puntos_de_reconfiguracion;
-		while(!lookahead_in(conjunto1))
+		while(!lookahead_in(conjunto1)){
 			scanner();
+		}	
 	}
 }
 
+void imprimir_set(set conjunto) {
+    printf("Elementos en el conjunto:\n");
+    for (int i = 0; i < sizeof(set) * 8; ++i) { // Itera sobre cada bit del conjunto
+        if (conjunto & (1LL << i)) {            // Si el bit i-ésimo está encendido
+            printf("Elemento %d\n", i);         // Imprime el índice del elemento
+        }
+    }
+	system("pause");
+}

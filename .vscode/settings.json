@@ -1,5 +1,7 @@
 {
   "files.associations": {
-    "var_globales.h": "c"
+    "*.embeddedhtml": "html",
+    "var_globales.h": "c",
+    "stdio.h": "c"
   }
 }

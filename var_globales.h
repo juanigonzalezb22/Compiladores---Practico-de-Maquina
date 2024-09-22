@@ -8,6 +8,7 @@ typedef struct { set codigo;
 
 #define COD_IMP_ERRORES -1
 
+
 char * linea;
 char *liberar;
 int nro_linea;

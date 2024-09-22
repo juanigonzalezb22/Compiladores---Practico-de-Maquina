@@ -14,4 +14,4 @@ error.o: error.c error.h var_globales.h
 util.o: util.c util.h var_globales.h
 
 clean:
-	$(RM) $(obj) ucc
+	$(RM) $(obj) ucc 
