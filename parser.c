@@ -150,42 +150,38 @@ void declaracion_variable(set folset)
 	}
 	match(CPYCOMA, 23);
 
-	test(folset, NADA , 51); //ver codigo de error y preguntar al edgardo quizás xdxd
+	test(folset, NADA , 51); 
 }
 
 
 void declarador_init(set folset)
 {	
-	test(CASIGNAC | CCOR_ABR | CCOMA | CPYCOMA | folset, CCOR_CIE | CLLA_ABR | CLLA_CIE | CCONS_FLO | CCONS_CAR , 47);
-	switch(lookahead())
-	{	
-		case CCONS_FLO:
-		case CCONS_CAR:
-		case CASIGNAC:
+test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
+	switch (lookahead())
+	{
+	case CASIGNAC:
+		match(CASIGNAC,66);
+		constante(folset);
+		break;
+	case CCOR_ABR:
+	case CCOR_CIE:
+	case CLLA_ABR:
+	case CLLA_CIE:
+		match(CCOR_ABR, 35);
+		if (lookahead_in(CCONS_ENT)){
+			constante(CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE| folset );
+		}
+		match(CCOR_CIE, 22);
+		if (lookahead_in(CASIGNAC | CLLA_ABR | CLLA_CIE))
+		{
 			match(CASIGNAC, 66);
-			constante(folset);
-			break;
-
-		case CCOR_ABR:
-		case CCOR_CIE:
-		case CLLA_ABR:
-		case CLLA_CIE:
-			 match(CCOR_ABR, 35);			
-			if(lookahead_in(CCONS_ENT))
-				constante(folset | CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE);
-
-			match(CCOR_CIE, 22);
-
-			if(lookahead_in(CASIGNAC | CLLA_ABR | CLLA_CIE | CCONS_ENT | CCONS_FLO | CCONS_CAR))
-			{
-				match(CASIGNAC, 66);
-				match(CLLA_ABR, 24);
-				lista_inicializadores(folset | CLLA_CIE);
-				match(CLLA_CIE, 25);
-			}
-			break;
+			match(CLLA_ABR, 24);
+			lista_inicializadores( CLLA_CIE | folset );
+			match(CLLA_CIE, 25);
+		}
+		break;
 	}
-	test(folset, NADA, 48);
+	test(folset, NADA , 48);
 }
 
 
@@ -236,7 +232,7 @@ void declaracion(set folset)
 
 	match(CPYCOMA, 23);
 
-	test(folset, NADA , 51); //chusmear
+	test(folset, NADA , 51);
 }
 
 
@@ -333,8 +329,6 @@ void proposicion_seleccion(set folset)
 	proposicion(folset | CLLA_ABR | CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG | CCONS_ENT | CCONS_FLO | 
 											CCONS_CAR | CCONS_STR | CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN | CELSE);
 
-	// Se decidio no agregar un test para evitar errores en caso que falte CELSE ya que esta
-	// implementacion genera varios problemas y consideramos que CELSE no es un simbolo facil de omitir.
 	if (lookahead_in(CELSE))
 	{
 		scanner();
@@ -433,7 +427,6 @@ void expresion(set folset)
 void expresion_simple(set folset)
 {
 	test(CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CPAR_ABR | CNEG | CMAS | CMENOS, folset, 56);
-
 	if (lookahead_in(CMAS | CMENOS))
 		scanner();
 	termino(folset | CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CMAS | CMENOS | CPAR_ABR | CNEG | COR);
