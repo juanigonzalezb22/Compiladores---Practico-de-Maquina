@@ -1,4 +1,4 @@
-in main() {
+int main() {
     int cont = 0;
     while (cont < 10) {
         cout << "Cont: " << count << "";
