@@ -31,7 +31,18 @@ void unidad_traduccion(set folset)
 void declaraciones(set folset)
 {
 	especificador_tipo(CIDENT | CPAR_ABR | CASIGNAC | CCOR_ABR | CCOMA | CPYCOMA| folset);
+
+	strcpy(inf_id->nbre, sbol->lexema);		// HACE FALTA ALGUN CONTROL?
+	printf("El nombre es: %s\n", inf_id->nbre);
+
+	//Importar ts.h en util.h tira errores por eso no hice lo siguiente dentro de la funcion match
+			// if( ne == 17 ){
+			// 	printf("El nombre es: %s\n", inf_id->nbre);
+			// 	strcpy(inf_id->nbre, sbol->lexema);
+			// }
+	
 	match(CIDENT, 17);
+	
 	especificador_declaracion(folset);
 }
 
@@ -42,18 +53,26 @@ void especificador_tipo(set folset)
 	switch (lookahead())
 	{
 	case CVOID:
+		inf_id->ptr_tipo = en_tabla("void");	// ESTA BIEN?
+		inf_id->cant_byte = sizeof(void);
 		scanner();
 		break;
 
 	case CCHAR:
+		inf_id->ptr_tipo = en_tabla("char");	// ESTA BIEN?
+		inf_id->cant_byte = sizeof(char);
 		scanner();
 		break;
 
 	case CINT:
+		inf_id->ptr_tipo = en_tabla("int");		// ESTA BIEN?
+		inf_id->cant_byte = sizeof(int);
 		scanner();
 		break;
 
 	case CFLOAT:
+		inf_id->ptr_tipo = en_tabla("float");	// ESTA BIEN?
+		inf_id->cant_byte = sizeof(float);
 		scanner();
 		break;
 
@@ -86,6 +105,8 @@ void especificador_declaracion(set folset)
 
 void definicion_funcion(set folset)
 {	
+	pushTB();  // Inicia un nuevo bloque léxico ???
+
 	match(CPAR_ABR, 20);
 
 	if (lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
@@ -94,6 +115,8 @@ void definicion_funcion(set folset)
 	match(CPAR_CIE, 21);
 
 	proposicion_compuesta(folset);
+
+	pop_nivel(); // Terminar el bloque léxico ???
 }
 
 
@@ -144,6 +167,8 @@ void lista_declaraciones_init(set folset)
 
 void declaracion_variable(set folset)
 {
+	inf_id->clase = CLASVAR; // ESTA BIEN??
+
 	declarador_init( CCOMA | CIDENT | CPYCOMA | folset );
 	if (lookahead_in(CCOMA | CIDENT))
 	{
@@ -162,6 +187,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 	switch (lookahead())
 	{
 	case CASIGNAC:
+		insertarTS();					// SE INSERTA ACA PORQUE SE SABE QUE NO ES UN ARREGLO
 		match(CASIGNAC,66);
 		constante(folset);
 		break;
@@ -214,6 +240,7 @@ void proposicion_compuesta(set folset)
 		lista_proposiciones(folset | CLLA_CIE);
 	}
 	match(CLLA_CIE, 25);
+
 	test(folset, NADA , 50);
 }
 
@@ -264,12 +291,16 @@ void proposicion(set folset)
 		break;
 
 	case CWHILE:
+		pushTB();  // Inicia un nuevo bloque léxico ???
 		proposicion_iteracion(folset);
+		pop_nivel(); // Terminar el bloque léxico ???
 		break;
 
 	case CIF:
 	case CELSE:
+		pushTB();  // Inicia un nuevo bloque léxico ???
 		proposicion_seleccion(folset);
+		pop_nivel(); // Terminar el bloque léxico ???
 		break;
 
 	case CIN:
