@@ -1,14 +1,14 @@
 /*
 ======================================================================
-	DISEÑO Y CONSTRUCCIÓN DE COMPILADORES
-	PROGRAMAS FUENTES ENTREGADOS POR LA CÁTEDRA
-        HEADER PARA EL ADMINISTRADOR DE TABLA DE SÍMBOLOS
+	DISEï¿½O Y CONSTRUCCIï¿½N DE COMPILADORES
+	PROGRAMAS FUENTES ENTREGADOS POR LA Cï¿½TEDRA
+        HEADER PARA EL ADMINISTRADOR DE TABLA DE Sï¿½MBOLOS
 ======================================================================
 */
 
 /*
 =====================================================================
-	 Definiciones de constantes usadas por la tabla de símbolos
+	 Definiciones de constantes usadas por la tabla de sï¿½mbolos
 =====================================================================
 */
 
@@ -18,55 +18,55 @@
 # define TAM_BLOQ   30
 # define BASE_TS    -1
 # define BASE_TB    -1
-# define NIL        -1         // indica que no apunto a ningún tipo
+# define NIL        -1         // indica que no apunto a ningï¿½n tipo
 
 
-// ========== Definición de las clases de identificadores ==========
+// ========== Definiciï¿½n de las clases de identificadores ==========
 
 			// CLASES CORRESPONDIENTES A:
 
 #define CLASTYPE   1    // identificador de tipo
 #define CLASVAR    2    // identificador de variable
-#define CLASFUNC   3    // identificador de función
-#define CLASPAR    4    // identificador de parámetro formal
+#define CLASFUNC   3    // identificador de funciï¿½n
+#define CLASPAR    4    // identificador de parï¿½metro formal
 
 /*
 
 =====================================================================
- Definiciones de tipos del administrador de tabla de símbolos
+ Definiciones de tipos del administrador de tabla de sï¿½mbolos
 =====================================================================
 */
 
 /*   LAS SIGUIENTES ESTRUCTURAS FORMAN PARTE DEL DESCRIPTOR
-     DE UNA ENTRADA EN LA TABLA DE SÍMBOLOS         */
+     DE UNA ENTRADA EN LA TABLA DE Sï¿½MBOLOS         */
 
 // ------------------------- TIPO_INF_RES --------------------------
-// Estructura que forma la lista con información resumida de parámetros
+// Estructura que forma la lista con informaciï¿½n resumida de parï¿½metros
 
  typedef struct inf_res {
-	int ptero_tipo;					// tipo del parámetro
+	int ptero_tipo;					// tipo del parï¿½metro
 	char tipo_pje;						// tipo de pasaje: valor o referencia
-	int ptero_tipo_base;				// descriptor para cuando el parámetro es de tipo arreglo
-	struct inf_res  *ptr_sig;		// siguiente parámetro
+	int ptero_tipo_base;				// descriptor para cuando el parï¿½metro es de tipo arreglo
+	struct inf_res  *ptr_sig;		// siguiente parï¿½metro
 } tipo_inf_res;
 
 // ---------------------------- STC_TS -----------------------------
-// Estructura propia de: variables (anónimas), subrutinas y parámetros
+// Estructura propia de: variables (anï¿½nimas), subrutinas y parï¿½metros
 
 typedef struct {
-	int nivel;  						// nivel lexicográfico del objeto computacional
-	int despl; 							// desplazamiento dentro del registro de activación usado solamente
-											// para identificadores de clase "variable" y  "parámetro"
+	int nivel;  						// nivel lexicogrï¿½fico del objeto computacional
+	int despl; 							// desplazamiento dentro del registro de activaciï¿½n usado solamente
+											// para identificadores de clase "variable" y  "parï¿½metro"
 	union {
-		struct {							// si es un identificador de parámetro
-		char tipo_pje;					// tipo de pasaje de este parámetro
-		int ptero_tipo_base;			// descriptor para cuando el parámetro es de tipo arreglo
+		struct {							// si es un identificador de parï¿½metro
+		char tipo_pje;					// tipo de pasaje de este parï¿½metro
+		int ptero_tipo_base;			// descriptor para cuando el parï¿½metro es de tipo arreglo
 		} param;
 		
-		struct { 								// si es un identificador de función
-			int dir_cod;  						// dirección del código
-			int cant_par;  					// cantidad de parámetros
-			tipo_inf_res *ptr_inf_res;		// puntero a la lista que mantiene información de los parámetros
+		struct { 								// si es un identificador de funciï¿½n
+			int dir_cod;  						// direcciï¿½n del cï¿½digo
+			int cant_par;  					// cantidad de parï¿½metros
+			tipo_inf_res *ptr_inf_res;		// puntero a la lista que mantiene informaciï¿½n de los parï¿½metros
 		} sub;
 	
 		struct {									// si es una variable de tipo arreglo
@@ -74,38 +74,38 @@ typedef struct {
 			int cant_elem;						// cantidad de elementos
 		} arr;					
 
-	} part_var;  						// fin de la unión de la parte variante
+	} part_var;  						// fin de la uniï¿½n de la parte variante
 
 } stc_TS;
 
 
-/* LA SIGUIENTE ESTRUCTURA FORMA UNA ENTRADA EN LA TABLA DE SÍMBOLOS*/
+/* LA SIGUIENTE ESTRUCTURA FORMA UNA ENTRADA EN LA TABLA DE Sï¿½MBOLOS*/
 
 // -------------------------- ENTRADA_TS ---------------------------
-//          Estructura de una entrada en la tabla de símbolos
+//          Estructura de una entrada en la tabla de sï¿½mbolos
 
 typedef struct {
 
 	char nbre[TAM_ID];	// nombre del identificador
 
-	int clase;				// clase de objeto computacional: vble., función, parám., tipo.
+	int clase;				// clase de objeto computacional: vble., funciï¿½n, parï¿½m., tipo.
 
-	int ptr_tipo;      	// puntero al tipo del identificador, apunta a la tabla de símbolos
-								// también sirve para indicar el tipo del valor retornado por una función
+	int ptr_tipo;      	// puntero al tipo del identificador, apunta a la tabla de sï¿½mbolos
+								// tambiï¿½n sirve para indicar el tipo del valor retornado por una funciï¿½n
 
 	int cant_byte;     	// cantidad de bytes del objeto computacional
 
-	stc_TS desc;      	// descriptor de variable, función o parámetro
+	stc_TS desc;      	// descriptor de variable, funciï¿½n o parï¿½metro
 
 } entrada_TS;
 
 
 // ---------------------------- TIPO_TS ----------------------------
-//          Estructura que define el tipo de la tabla de símbolos
+//          Estructura que define el tipo de la tabla de sï¿½mbolos
 
 typedef struct {
 
-	int ptr_sinon;			// puntero que encadena los sinónimos
+	int ptr_sinon;			// puntero que encadena los sinï¿½nimos
 	entrada_TS  *ets;		// entrada_TS particular
 
 } tipo_TS;
@@ -113,27 +113,27 @@ typedef struct {
 
 /*
 =====================================================================
-						Definición de variables globales
+						Definiciï¿½n de variables globales
 =====================================================================
 */
 
 //extern entrada_TS  *inf_id;
-//extern tipo_TS  ts[TAM_TS];		// Tabla de Símbolos
+//extern tipo_TS  ts[TAM_TS];		// Tabla de Sï¿½mbolos
 
 
 entrada_TS  *inf_id;		// Puntero a la estructura que contiene la
-								// información de un identificador, la cual es
-								// completada previamente a una inserción en TS
+								// informaciï¿½n de un identificador, la cual es
+								// completada previamente a una inserciï¿½n en TS
 
 int       th[TAM_HASH];   // Tabla de Hash
-tipo_TS   ts[TAM_TS];     // Tabla de Símbolos
+tipo_TS   ts[TAM_TS];     // Tabla de Sï¿½mbolos
 int       tb[TAM_BLOQ];   // Tabla de Bloques
 int  topeTS;
 int  topeTB;
 
 /* 
 =====================================================================
-		Funciones para la administración de la Tabla de Símbolos 
+		Funciones para la administraciï¿½n de la Tabla de Sï¿½mbolos 
 =====================================================================
 */
 
@@ -154,3 +154,8 @@ void popTB();
 void pushTB();
 void pop_nivel();
 int get_nivel();
+
+
+
+entrada_TS* buscar_en_tabla(char *nombre);
+void mostrar_tabla();

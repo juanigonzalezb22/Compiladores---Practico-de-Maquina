@@ -23,6 +23,8 @@ void unidad_traduccion(set folset)
 {	
 	test(CVOID | CCHAR | CINT | CFLOAT | folset, NADA , 40);
 	while (lookahead_in(CVOID | CCHAR | CINT | CFLOAT)){
+		//mostrar_tabla();
+		//buscar_en_tabla("fcrash");
 		declaraciones(CVOID | CCHAR | CINT | CFLOAT | folset);
 	}
 }
@@ -31,15 +33,6 @@ void unidad_traduccion(set folset)
 void declaraciones(set folset)
 {
 	especificador_tipo(CIDENT | CPAR_ABR | CASIGNAC | CCOR_ABR | CCOMA | CPYCOMA| folset);
-
-	strcpy(inf_id->nbre, sbol->lexema);		// HACE FALTA ALGUN CONTROL?
-	printf("El nombre es: %s\n", inf_id->nbre);
-
-	//Importar ts.h en util.h tira errores por eso no hice lo siguiente dentro de la funcion match
-			// if( ne == 17 ){
-			// 	printf("El nombre es: %s\n", inf_id->nbre);
-			// 	strcpy(inf_id->nbre, sbol->lexema);
-			// }
 	
 	match(CIDENT, 17);
 	
@@ -53,30 +46,31 @@ void especificador_tipo(set folset)
 	switch (lookahead())
 	{
 	case CVOID:
-		inf_id->ptr_tipo = en_tabla("void");	// ESTA BIEN?
-		inf_id->cant_byte = sizeof(void);
+		inf_id->ptr_tipo = en_tabla("void"); 
+		inf_id->cant_byte = 0;
 		scanner();
 		break;
 
 	case CCHAR:
-		inf_id->ptr_tipo = en_tabla("char");	// ESTA BIEN?
-		inf_id->cant_byte = sizeof(char);
+		inf_id->ptr_tipo = en_tabla("char"); 
+		inf_id->cant_byte = 1;
 		scanner();
 		break;
 
 	case CINT:
-		inf_id->ptr_tipo = en_tabla("int");		// ESTA BIEN?
+		inf_id->ptr_tipo = en_tabla("int"); 
 		inf_id->cant_byte = sizeof(int);
 		scanner();
 		break;
 
 	case CFLOAT:
-		inf_id->ptr_tipo = en_tabla("float");	// ESTA BIEN?
+		inf_id->ptr_tipo = en_tabla("float"); 
 		inf_id->cant_byte = sizeof(float);
 		scanner();
 		break;
 
 	default:
+		inf_id->ptr_tipo = en_tabla("TIPOERROR"); // va aca?
 		error_handler(18);
 	}
 	test(folset, NADA , 42);
@@ -89,12 +83,15 @@ void especificador_declaracion(set folset)
 	switch (lookahead())
 	{
 	case CPAR_ABR:
+		inf_id->clase = CLASFUNC;
+		insertarTS();
 		definicion_funcion(folset);
 		break;
 	case CASIGNAC:
 	case CCOR_ABR:
 	case CCOMA:
 	case CPYCOMA:
+		inf_id->clase = CLASVAR;
 		declaracion_variable(folset);
 		break;
 	default:
@@ -105,7 +102,7 @@ void especificador_declaracion(set folset)
 
 void definicion_funcion(set folset)
 {	
-	pushTB();  // Inicia un nuevo bloque léxico ???
+	pushTB();  // INICIO BLOQUE LEXICO
 
 	match(CPAR_ABR, 20);
 
@@ -116,13 +113,14 @@ void definicion_funcion(set folset)
 
 	proposicion_compuesta(folset);
 
-	pop_nivel(); // Terminar el bloque léxico ???
+	pop_nivel(); // TERMINA BLOQUE LEXICO
 }
 
 
 void lista_declaraciones_param(set folset)
 {
 	declaracion_parametro(folset | CCOMA | CVOID | CCHAR | CINT | CFLOAT);
+
 	while (lookahead_in(CCOMA | CVOID | CCHAR | CINT | CFLOAT))
 	{
 		match(CCOMA, 64);
@@ -144,7 +142,12 @@ void declaracion_parametro(set folset)
 	{
 		match(CCOR_ABR, 35);
 		match(CCOR_CIE, 22);
+		inf_id->ptr_tipo = en_tabla("TIPOARREGLO"); 
+		//COMPLETAR
 	}
+
+	inf_id->clase = CLASPAR;
+	insertarTS();
 	test(folset, NADA ,45);
 }
 
@@ -167,8 +170,6 @@ void lista_declaraciones_init(set folset)
 
 void declaracion_variable(set folset)
 {
-	inf_id->clase = CLASVAR; // ESTA BIEN??
-
 	declarador_init( CCOMA | CIDENT | CPYCOMA | folset );
 	if (lookahead_in(CCOMA | CIDENT))
 	{
@@ -187,7 +188,6 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 	switch (lookahead())
 	{
 	case CASIGNAC:
-		insertarTS();					// SE INSERTA ACA PORQUE SE SABE QUE NO ES UN ARREGLO
 		match(CASIGNAC,66);
 		constante(folset);
 		break;
@@ -197,9 +197,14 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 	case CLLA_CIE:
 		match(CCOR_ABR, 35);
 		if (lookahead_in(CCONS_ENT)){
+			// ACA TOMAR VALOR CONSTANTE Y CALCULAR DIMENSION DEL ARREGLO
 			constante(CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE| folset );
 		}
 		match(CCOR_CIE, 22);
+
+		inf_id->ptr_tipo = en_tabla("TIPOARREGLO"); 
+		//COMPLETAR
+
 		if (lookahead_in(CASIGNAC | CLLA_ABR | CLLA_CIE))
 		{
 			match(CASIGNAC, 66);
@@ -209,6 +214,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 		}
 		break;
 	}
+	insertarTS();
 	test(folset, NADA , 48);
 }
 
@@ -542,6 +548,10 @@ void variable(set folset)
 	test(CIDENT, folset | CCOR_ABR | CCOR_CIE, 59);
 	match(CIDENT, 17);
 
+	if( en_tabla(inf_id->nbre) == NIL ){
+		error_handler(71);
+	}
+
 	/* El alumno debera verificar con una consulta a TS
 	si, siendo la variable un arreglo, corresponde o no
 	verificar la presencia del subindice */
@@ -559,6 +569,11 @@ void variable(set folset)
 void llamada_funcion(set folset)
 {
 	match(CIDENT, 17);
+
+	if( en_tabla(inf_id->nbre) == NIL ){
+		error_handler(71);
+	}
+
 	match(CPAR_ABR, 20);
 	if (lookahead_in(CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR))
 		lista_expresiones(folset | CPAR_CIE);
@@ -601,5 +616,6 @@ void constante(set folset)
 	default:
 		error_handler(33);
 	}
+
 	test(folset, NADA , 63);
 }
