@@ -22,14 +22,15 @@ int main(int argc, char *argv[])
 void unidad_traduccion(set folset)
 {	
 	test(CVOID | CCHAR | CINT | CFLOAT | folset, NADA , 40);
+	pushTB();  // Inicia un nuevo bloque léxico ???
 	while (lookahead_in(CVOID | CCHAR | CINT | CFLOAT)){
-		//mostrar_tabla();
-		//buscar_en_tabla("fcrash");
 		declaraciones(CVOID | CCHAR | CINT | CFLOAT | folset);
+		//mostrar_tabla();
 	}
+	pop_nivel(); // Terminar el bloque léxico ???
 }
 
-
+		
 void declaraciones(set folset)
 {
 	especificador_tipo(CIDENT | CPAR_ABR | CASIGNAC | CCOR_ABR | CCOMA | CPYCOMA| folset);
@@ -84,6 +85,7 @@ void especificador_declaracion(set folset)
 	{
 	case CPAR_ABR:
 		inf_id->clase = CLASFUNC;
+		inf_id->desc.nivel = get_nivel();
 		insertarTS();
 		definicion_funcion(folset);
 		break;
@@ -147,6 +149,7 @@ void declaracion_parametro(set folset)
 	}
 
 	inf_id->clase = CLASPAR;
+	inf_id->desc.nivel = get_nivel();
 	insertarTS();
 	test(folset, NADA ,45);
 }
@@ -214,6 +217,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 		}
 		break;
 	}
+	inf_id->desc.nivel = get_nivel();
 	insertarTS();
 	test(folset, NADA , 48);
 }
@@ -384,11 +388,11 @@ void proposicion_e_s(set folset)
 	case CSHR:
 		match(CIN, 29);
 		match(CSHR, 30);
-		variable(folset | CSHR | CIDENT | CPYCOMA);
+		variable(folset | CSHR | CIDENT | CPYCOMA, 0);
 		while (lookahead_in(CSHR))
 		{
 			scanner();
-			variable(folset | CSHR | CIDENT | CPYCOMA);
+			variable(folset | CSHR | CIDENT | CPYCOMA, 0);
 		}
 		match(CPYCOMA, 23);
 		break;
@@ -505,16 +509,29 @@ void factor(set folset)
 	switch (lookahead())
 	{
 	case CIDENT:
-		/***************** Re-hacer *****************/
-		if (sbol->lexema[0] == 'f')
-			llamada_funcion(folset);
-		else
-			variable(folset);
-		/********************************************/
-		/* El alumno debera evaluar con consulta a TS
-		si bifurca a variable o llamada a funcion */
+		if( Clase_Ident(sbol->lexema) == NIL ){
+			error_handler(71);
+			strcpy(inf_id->nbre,sbol->lexema);
+			inf_id->ptr_tipo = en_tabla("TIPOERROR"); 
+			inf_id->clase = CLASVAR;
+		  inf_id->desc.nivel = get_nivel();
+			insertarTS();
+			//mostrar_tabla();
+			scanner();
+			if( lookahead_in(CPAR_ABR) ){
+				llamada_funcion(folset, 1);
+			} else {
+				variable(folset, 1);
+			}
+		} else {
+			if ( Clase_Ident(sbol->lexema) == 3) {
+				llamada_funcion(folset, 0); 	// TIPO FUNCION = 3
+			} else {
+				variable(folset, 0); 				// TIPO VARIABLE = 2
+			}
+		}
+		// CONSULTAR SI ESTA BIEN
 		break;
-
 	case CCONS_ENT:
 	case CCONS_FLO:
 	case CCONS_CAR:
@@ -543,13 +560,23 @@ void factor(set folset)
 }
 
 
-void variable(set folset)
+void variable(set folset, int falta_ident )
 {
-	test(CIDENT, folset | CCOR_ABR | CCOR_CIE, 59);
-	match(CIDENT, 17);
+	int aux = 0;
 
-	if( en_tabla(inf_id->nbre) == NIL ){
-		error_handler(71);
+	// A LOS PUNTOS DE RECONFIGURACION DE LOS TEST, NO LE FALTAN LOS FIRST1 DE EXPRESION????
+
+	if( falta_ident == 0 ){
+		test(CIDENT, folset | CCOR_ABR | CCOR_CIE, 59);
+
+		if( strcmp( ts[Tipo_Ident( sbol->lexema )].ets->nbre, "TIPOARREGLO" ) == 0 )
+			aux = 1;
+
+		match(CIDENT, 17);
+	} else {
+		test(folset | CCOR_ABR, CCOR_CIE, 59); // CHEQUEAR TEST
+		aux = 1; 	// SI EL IDENT NO ESTA DECLARADO, HACE FALTA MOSTRAR QUE 
+							// NO ES TIPO ARREGLO EN CASO DE QUE TENGA CORCHETES???
 	}
 
 	/* El alumno debera verificar con una consulta a TS
@@ -558,6 +585,8 @@ void variable(set folset)
 
 	if (lookahead_in(CCOR_ABR))
 	{
+		if( aux == 0 )
+			error_handler(78);
 		scanner();
 		expresion(folset | CCOR_CIE);
 		match(CCOR_CIE, 22);
@@ -566,13 +595,10 @@ void variable(set folset)
 }
 
 
-void llamada_funcion(set folset)
+void llamada_funcion(set folset, int falta_ident )
 {
-	match(CIDENT, 17);
-
-	if( en_tabla(inf_id->nbre) == NIL ){
-		error_handler(71);
-	}
+	if( falta_ident == 0 )
+		match(CIDENT, 17);
 
 	match(CPAR_ABR, 20);
 	if (lookahead_in(CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR))

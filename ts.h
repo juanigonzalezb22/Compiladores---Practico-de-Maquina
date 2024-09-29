@@ -156,6 +156,4 @@ void pop_nivel();
 int get_nivel();
 
 
-
-entrada_TS* buscar_en_tabla(char *nombre);
 void mostrar_tabla();

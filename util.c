@@ -64,10 +64,9 @@ void match(set codigo, int ne)
 {
     if(lookahead() & codigo){
 			//printf("Match: %s\n", lookahead_lexema());					//DESCOMENTAR EN CASO DE EMERGENCIA.
-
 			if( codigo == CIDENT ){
 				strcpy(inf_id->nbre, sbol->lexema);
-				printf("IDENTIFICADOR: %s\n", inf_id->nbre);
+				//printf("IDENTIFICADOR: %s\n", inf_id->nbre);
 			}
 			scanner();
 		} else

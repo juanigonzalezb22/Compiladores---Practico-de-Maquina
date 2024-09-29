@@ -245,22 +245,38 @@ int pushTS(int s, entrada_TS *ptr) {
 }
 
 
-entrada_TS* buscar_en_tabla(char *nombre) {
-    for (int i = 0; i < topeTS; i++) {  // Asumimos que 'tope' es el índice actual en la tabla de símbolos
-        if (strcmp(ts[i].ets->nbre, nombre) == 0) {
-            return &ts[i];  // Retorna un puntero a la entrada de la tabla
+void mostrar_tabla() {
+    int i;
+    printf("Tabla de Simbolos:\n");
+    printf("-------------------------------------------------------------\n");
+    printf("| Posicion | Nombre     | Clase  | Tipo  | Bytes | Descripcion\n");
+    printf("-------------------------------------------------------------\n");
+
+    for (i = 0; i <= topeTS; i++) {
+        if (ts[i].ets != NULL) {
+            entrada_TS *entrada = ts[i].ets;
+            printf("| %8d | %-10s | %6d | %5d | %5d | ", i, entrada->nbre, entrada->clase, entrada->ptr_tipo, entrada->cant_byte);
+
+            // Mostrar detalles adicionales según la clase del identificador
+            switch (entrada->clase) {
+                case CLASTYPE:
+                    printf("Tipo\n");
+                    break;
+                case CLASVAR:
+                    printf("Variable (Nivel: %d, Desplazamiento: %d)\n", entrada->desc.nivel, entrada->desc.despl);
+                    break;
+                case CLASFUNC:
+                    printf("Funcion (Dir. Codigo: %d, Cant. Parametros: %d)\n", entrada->desc.part_var.sub.dir_cod, entrada->desc.part_var.sub.cant_par);
+                    break;
+                case CLASPAR:
+                    printf("Parametro (Tipo de Pasaje: %c)\n", entrada->desc.part_var.param.tipo_pje);
+                    break;
+                default:
+                    printf("Desconocido\n");
+                    break;
+            }
         }
     }
-    return NULL;  // Si no se encuentra el identificador, retorna NULL
-}
 
-
-void mostrar_tabla() {
-    printf("Contenido de la tabla de símbolos:\n");
-    for (int i = 0; i < topeTS; i++) {
-        printf("Nombre: %s, Tipo: %p, Lexema: %s\n", 
-            ts[i].ets->nbre,
-            ts[i].ets->clase, 
-            ts[i].ets->ptr_tipo);
-    }
+    printf("-------------------------------------------------------------\n");
 }

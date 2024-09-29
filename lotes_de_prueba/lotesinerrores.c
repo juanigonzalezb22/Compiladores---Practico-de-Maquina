@@ -27,6 +27,7 @@ float decimal = 3.14;
 int fsuma() {
     int num1;
     int num2;
+    num12[1] = 1;
     fmostrar(num1, num2);
     if ((j < 5) && (k > 10)) {
         fsuma();
