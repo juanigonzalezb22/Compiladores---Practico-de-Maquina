@@ -25,7 +25,6 @@ void unidad_traduccion(set folset)
 	pushTB();  // Inicia un nuevo bloque léxico ???
 	while (lookahead_in(CVOID | CCHAR | CINT | CFLOAT)){
 		declaraciones(CVOID | CCHAR | CINT | CFLOAT | folset);
-		//mostrar_tabla();
 	}
 	pop_nivel(); // Terminar el bloque léxico ???
 }
@@ -132,7 +131,7 @@ void lista_declaraciones_param(set folset)
 
 
 void declaracion_parametro(set folset)
-{
+{	
 	especificador_tipo(folset | CAMPER | CIDENT | CCOR_ABR | CCOR_CIE);
 
 	if (lookahead_in(CAMPER))
@@ -144,6 +143,7 @@ void declaracion_parametro(set folset)
 	{
 		match(CCOR_ABR, 35);
 		match(CCOR_CIE, 22);
+		inf_id->desc.part_var.arr.ptero_tipo_base= inf_id->ptr_tipo;
 		inf_id->ptr_tipo = en_tabla("TIPOARREGLO"); 
 		//COMPLETAR
 	}
@@ -200,13 +200,16 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 	case CLLA_CIE:
 		match(CCOR_ABR, 35);
 		if (lookahead_in(CCONS_ENT)){
-			// ACA TOMAR VALOR CONSTANTE Y CALCULAR DIMENSION DEL ARREGLO
+			inf_id->desc.part_var.arr.cant_elem = atoi(lookahead_lexema());
 			constante(CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE| folset );
 		}
 		match(CCOR_CIE, 22);
-
+		if(inf_id->ptr_tipo == en_tabla("char") || inf_id->ptr_tipo == en_tabla("int") || inf_id->ptr_tipo == en_tabla("float"))
+			inf_id->desc.part_var.arr.ptero_tipo_base= inf_id->ptr_tipo;
+		else
+			error_handler(73);
 		inf_id->ptr_tipo = en_tabla("TIPOARREGLO"); 
-		//COMPLETAR
+		//Lo damos de alta igual???
 
 		if (lookahead_in(CASIGNAC | CLLA_ABR | CLLA_CIE))
 		{
@@ -301,16 +304,16 @@ void proposicion(set folset)
 		break;
 
 	case CWHILE:
-		pushTB();  // Inicia un nuevo bloque léxico ???
+		//pushTB();  // Inicia un nuevo bloque léxico ???
 		proposicion_iteracion(folset);
-		pop_nivel(); // Terminar el bloque léxico ???
+		//pop_nivel(); // Terminar el bloque léxico ???
 		break;
 
 	case CIF:
 	case CELSE:
-		pushTB();  // Inicia un nuevo bloque léxico ???
+		//pushTB();  // Inicia un nuevo bloque léxico ???
 		proposicion_seleccion(folset);
-		pop_nivel(); // Terminar el bloque léxico ???
+		//pop_nivel(); // Terminar el bloque léxico ???
 		break;
 
 	case CIN:
@@ -353,8 +356,9 @@ void proposicion_iteracion(set folset)
 	 						CCONS_FLO | CCONS_CAR | CCONS_STR | CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN);
 
 	match(CPAR_CIE, 21);
-
+	pushTB();
 	proposicion(folset);
+	pop_nivel();
 }
 
 
@@ -368,15 +372,18 @@ void proposicion_seleccion(set folset)
 			CCONS_FLO | CCONS_CAR | CCONS_STR | CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN | CELSE);
 
 	match(CPAR_CIE, 21);
-
+	pushTB();
 	proposicion(folset | CLLA_ABR | CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG | CCONS_ENT | CCONS_FLO | 
 											CCONS_CAR | CCONS_STR | CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN | CELSE);
-
+	pop_nivel();
 	if (lookahead_in(CELSE))
 	{
 		scanner();
+		pushTB();
 		proposicion(folset);
+		pop_nivel();
 	}
+	
 }
 
 

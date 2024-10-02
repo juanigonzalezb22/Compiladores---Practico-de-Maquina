@@ -1,6 +1,5 @@
 int fedad() {
     int edad;
-
     cout << "Ingresa tu edad: ";
     cin >> edad;
     if (edad >= 18) {
@@ -21,7 +20,8 @@ int fnum() {
 }
 
 char letra;         
-char nombre[50];  
+char nombre[50];
+void err[50];
 float decimal = 3.14; 
    
 int fsuma() {

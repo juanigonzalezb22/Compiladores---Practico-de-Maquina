@@ -263,7 +263,15 @@ void mostrar_tabla() {
                     printf("Tipo\n");
                     break;
                 case CLASVAR:
-                    printf("Variable (Nivel: %d, Desplazamiento: %d)\n", entrada->desc.nivel, entrada->desc.despl);
+                    if (entrada->ptr_tipo == en_tabla("TIPOARREGLO") ) {
+                        printf("Arreglo (Tipo base: %d, Cant. elementos: %d, Nivel: %d, Desplazamiento: %d)\n", 
+                               entrada->desc.part_var.arr.ptero_tipo_base, 
+                               entrada->desc.part_var.arr.cant_elem, 
+                               entrada->desc.nivel, 
+                               entrada->desc.despl);
+                    } else {
+                        printf("Variable (Nivel: %d, Desplazamiento: %d)\n", entrada->desc.nivel, entrada->desc.despl);
+                    }
                     break;
                 case CLASFUNC:
                     printf("Funcion (Dir. Codigo: %d, Cant. Parametros: %d)\n", entrada->desc.part_var.sub.dir_cod, entrada->desc.part_var.sub.cant_par);
