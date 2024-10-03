@@ -28,6 +28,9 @@ void unidad_traduccion(set folset)
 	while (lookahead_in(CVOID | CCHAR | CINT | CFLOAT)){
 		declaraciones(CVOID | CCHAR | CINT | CFLOAT | folset);
 	}
+	if(en_tabla("main") == NIL){
+		error_handler(84); //Algo más para hacer?
+	}
 	pop_nivel(); // Terminar el bloque léxico ???
 }
 
@@ -82,13 +85,17 @@ void especificador_tipo(set folset)
 void especificador_declaracion(set folset)
 {
 	test(CPAR_ABR|CASIGNAC|CCOR_ABR|CCOMA|CPYCOMA,folset,43);
+	int esmain = 0;
 	switch (lookahead())
 	{
 	case CPAR_ABR:
 		inf_id->clase = CLASFUNC;
 		inf_id->desc.nivel = get_nivel();
+		if (strcmp(inf_id->nbre,"main") == 0){
+			esmain = 1;
+		}
 		insertarTS();
-		definicion_funcion(folset);
+		definicion_funcion(folset, esmain);
 		break;
 	case CASIGNAC:
 	case CCOR_ABR:
@@ -103,15 +110,18 @@ void especificador_declaracion(set folset)
 }
 
 
-void definicion_funcion(set folset)
+void definicion_funcion(set folset, int esmain)
 {	
 	pushTB();  // INICIO BLOQUE LEXICO
 
 	match(CPAR_ABR, 20);
-
-	if (lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
-		lista_declaraciones_param( CPAR_CIE | CLLA_ABR| folset);
-
+	printf("%-10s\n", inf_id->nbre);
+	if (lookahead_in(CVOID | CCHAR | CINT | CFLOAT)){
+		if (esmain == 1){ 
+			error_handler(86); 
+		}
+		lista_declaraciones_param( CPAR_CIE | CLLA_ABR| folset); 
+	}
 	match(CPAR_CIE, 21);
 
 	proposicion_compuesta(folset);
@@ -638,7 +648,6 @@ void factor(set folset)
 		if (llamado_factor == 0){
 			error_handler(94);
 		}
-		//printf("Que valor tiene: %d\n", llamado_factor);
 		llamado_factor = 0;
 		scanner();
 		break;

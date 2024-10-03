@@ -13,7 +13,7 @@ void unidad_traduccion(set);
 void declaraciones(set);
 void especificador_tipo(set);
 void especificador_declaracion(set);
-void definicion_funcion(set);
+void definicion_funcion(set, int);
 void declaracion_variable(set);
 void lista_declaraciones_param(set);
 void declaracion_parametro(set);
