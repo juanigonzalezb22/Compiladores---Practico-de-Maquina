@@ -201,15 +201,38 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 		match(CCOR_ABR, 35);
 		if (lookahead_in(CCONS_ENT)){
 			inf_id->desc.part_var.arr.cant_elem = atoi(lookahead_lexema());
+			if( inf_id->desc.part_var.arr.cant_elem == 0 ) {
+				error_handler(75);
+			}
+				
 			constante(CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE| folset );
-		}
+		} else
+			error_handler(74);	// ESTE ERROR DEBERIA SER MARCADO ACA? FALTA ALGUN CONTROL?
+
 		match(CCOR_CIE, 22);
-		if(inf_id->ptr_tipo == en_tabla("char") || inf_id->ptr_tipo == en_tabla("int") || inf_id->ptr_tipo == en_tabla("float"))
-			inf_id->desc.part_var.arr.ptero_tipo_base= inf_id->ptr_tipo;
-		else
+		// if(inf_id->ptr_tipo == en_tabla("char") || inf_id->ptr_tipo == en_tabla("int") || inf_id->ptr_tipo == en_tabla("float"))
+		// 	inf_id->desc.part_var.arr.ptero_tipo_base= inf_id->ptr_tipo;
+		// else {
+		// 	error_handler(73);
+		// }
+
+		//SI CAMBIAMOS DESPUES EL ptr_tipo PERDEMOS LA INFORMACION? POR LAS DUDAS HICE EL QUE SIGUE xd
+		if(inf_id->ptr_tipo == en_tabla("char")) {
+			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("char");
+			inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem;
+		} else if (inf_id->ptr_tipo == en_tabla("int")) {
+			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("int");
+			inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem * sizeof(float);
+		} else if (inf_id->ptr_tipo == en_tabla("float")) {
+			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("float");
+			inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem * sizeof(float);
+		} else {
+			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("TIPOERROR");
 			error_handler(73);
-		inf_id->ptr_tipo = en_tabla("TIPOARREGLO"); 
-		//Lo damos de alta igual???
+		}
+
+		inf_id->ptr_tipo = en_tabla("TIPOARREGLO");
+		//Lo damos de alta igual??? Se, no deberia haber problema, no? xd
 
 		if (lookahead_in(CASIGNAC | CLLA_ABR | CLLA_CIE))
 		{
@@ -228,12 +251,61 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 
 void lista_inicializadores(set folset)
 {
+	int error = 0;		// 0 = los inicializadores son del tipo correccto
+										// 1 = los inicializadores no son del tipo correccto
+	int cant_aux = 0;	// cantidad de elementos inicializados
+
+	switch (lookahead()) {
+		case CCONS_ENT:
+			if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("int") )
+				error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
+			cant_aux++;
+			break;
+		case CCONS_FLO:
+			if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("float") )
+				error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
+			cant_aux++;
+			break;
+		case CCONS_CAR:
+			if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("char") )
+				error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
+			cant_aux++;
+			break;
+		default:break; // LA RECUPERACION DE ERRORES SE ENCARGA DE ESTO? 
+	}
+
 	constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
 	while (lookahead_in(CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR))
 	{
 		match(CCOMA, 64);
+
+		switch (lookahead()) {
+			case CCONS_ENT:
+				if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("int") )
+					error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
+				cant_aux++;
+				break;
+			case CCONS_FLO:
+				if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("float") )
+					error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
+				cant_aux++;
+				break;
+			case CCONS_CAR:
+				if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("char") )
+					error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
+				cant_aux++;
+				break;
+			default:break; // LA RECUPERACION DE ERRORES SE ENCARGA DE ESTO? 
+		}
+
 		constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
 	}
+
+	if( inf_id->desc.part_var.arr.cant_elem < cant_aux )
+		error_handler(76);	
+		// HAY QUE HACER ALGUN CAMBIO EN LA TABLA DE SIMBOLOS O ALGO? PUES, HAY MAS VALORES QUE ESPACIO EN EL ARREGLO.
+	if (error == 1)
+		error_handler(77);
 }
 
 
@@ -304,16 +376,12 @@ void proposicion(set folset)
 		break;
 
 	case CWHILE:
-		//pushTB();  // Inicia un nuevo bloque léxico ???
 		proposicion_iteracion(folset);
-		//pop_nivel(); // Terminar el bloque léxico ???
 		break;
 
 	case CIF:
 	case CELSE:
-		//pushTB();  // Inicia un nuevo bloque léxico ???
 		proposicion_seleccion(folset);
-		//pop_nivel(); // Terminar el bloque léxico ???
 		break;
 
 	case CIN:
