@@ -1,5 +1,7 @@
 #include "parser.h"
 
+int llamado_factor = 0;
+
 int main(int argc, char *argv[])
 {
 	init_parser(argc, argv);
@@ -29,7 +31,7 @@ void unidad_traduccion(set folset)
 	pop_nivel(); // Terminar el bloque léxico ???
 }
 
-		
+
 void declaraciones(set folset)
 {
 	especificador_tipo(CIDENT | CPAR_ABR | CASIGNAC | CCOR_ABR | CCOMA | CPYCOMA| folset);
@@ -186,11 +188,18 @@ void declaracion_variable(set folset)
 
 
 void declarador_init(set folset)
-{	
+{
 test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
+	int existe_cons_ent = 0;
+	int cant_elem_aux = 0;
 	switch (lookahead())
 	{
 	case CASIGNAC:
+		if( Clase_Ident(inf_id->nbre) != NIL ){
+			if( Clase_Ident(inf_id->nbre) != CLASVAR ){
+				error_handler(82);
+			}
+		}
 		match(CASIGNAC,66);
 		constante(folset);
 		break;
@@ -201,13 +210,14 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 		match(CCOR_ABR, 35);
 		if (lookahead_in(CCONS_ENT)){
 			inf_id->desc.part_var.arr.cant_elem = atoi(lookahead_lexema());
+			cant_elem_aux = atoi(lookahead_lexema());
 			if( inf_id->desc.part_var.arr.cant_elem == 0 ) {
 				error_handler(75);
 			}
-				
 			constante(CCOR_CIE | CASIGNAC | CLLA_ABR | CCONS_ENT | CCONS_FLO | CCONS_CAR | CLLA_CIE| folset );
-		} else
-			error_handler(74);	// ESTE ERROR DEBERIA SER MARCADO ACA? FALTA ALGUN CONTROL?
+
+			existe_cons_ent = 1;
+		}
 
 		match(CCOR_CIE, 22);
 		// if(inf_id->ptr_tipo == en_tabla("char") || inf_id->ptr_tipo == en_tabla("int") || inf_id->ptr_tipo == en_tabla("float"))
@@ -216,62 +226,68 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 		// 	error_handler(73);
 		// }
 
-		//SI CAMBIAMOS DESPUES EL ptr_tipo PERDEMOS LA INFORMACION? POR LAS DUDAS HICE EL QUE SIGUE xd
 		if(inf_id->ptr_tipo == en_tabla("char")) {
 			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("char");
-			inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem;
 		} else if (inf_id->ptr_tipo == en_tabla("int")) {
 			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("int");
-			inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem * sizeof(float);
 		} else if (inf_id->ptr_tipo == en_tabla("float")) {
 			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("float");
-			inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem * sizeof(float);
 		} else {
 			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("TIPOERROR");
 			error_handler(73);
 		}
 
-		inf_id->ptr_tipo = en_tabla("TIPOARREGLO");
-		//Lo damos de alta igual??? Se, no deberia haber problema, no? xd
-
 		if (lookahead_in(CASIGNAC | CLLA_ABR | CLLA_CIE))
 		{
 			match(CASIGNAC, 66);
 			match(CLLA_ABR, 24);
-			lista_inicializadores( CLLA_CIE | folset );
+			lista_inicializadores( CLLA_CIE | folset, existe_cons_ent, &cant_elem_aux );
 			match(CLLA_CIE, 25);
+		} else {
+			if( existe_cons_ent == 0 ){
+				error_handler(74);
+			}
 		}
-		break;
 	}
+
+	if(inf_id->ptr_tipo == en_tabla("char")) {
+		inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem;
+	} else if (inf_id->ptr_tipo == en_tabla("int")) {
+		inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem * sizeof(float);
+	} else if (inf_id->ptr_tipo == en_tabla("float")) {
+		inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem * sizeof(float);
+	}
+
+	inf_id->ptr_tipo = en_tabla("TIPOARREGLO");
 	inf_id->desc.nivel = get_nivel();
 	insertarTS();
 	test(folset, NADA , 48);
 }
 
 
-void lista_inicializadores(set folset)
+void lista_inicializadores(set folset, int existe_cons_ent, int* cant_elem_aux)
 {
 	int error = 0;		// 0 = los inicializadores son del tipo correccto
 										// 1 = los inicializadores no son del tipo correccto
-	int cant_aux = 0;	// cantidad de elementos inicializados
+	int cant_iniciadores = 0;	// cantidad de elementos inicializados
 
 	switch (lookahead()) {
 		case CCONS_ENT:
 			if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("int") )
 				error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
-			cant_aux++;
+			cant_iniciadores++;
 			break;
 		case CCONS_FLO:
 			if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("float") )
 				error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
-			cant_aux++;
+			cant_iniciadores++;
 			break;
 		case CCONS_CAR:
 			if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("char") )
 				error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
-			cant_aux++;
+			cant_iniciadores++;
 			break;
-		default:break; // LA RECUPERACION DE ERRORES SE ENCARGA DE ESTO? 
+		default: break; // LA RECUPERACION DE ERRORES SE ENCARGA DE ESTO? 
 	}
 
 	constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
@@ -283,27 +299,30 @@ void lista_inicializadores(set folset)
 			case CCONS_ENT:
 				if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("int") )
 					error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
-				cant_aux++;
+				cant_iniciadores++;
 				break;
 			case CCONS_FLO:
 				if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("float") )
 					error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
-				cant_aux++;
+				cant_iniciadores++;
 				break;
 			case CCONS_CAR:
 				if( inf_id->desc.part_var.arr.ptero_tipo_base != en_tabla("char") )
 					error = 1; // PARA NO MOSTRAR EL CARTEL CADA VEZ QUE NO COINCIDE
-				cant_aux++;
+				cant_iniciadores++;
 				break;
-			default:break; // LA RECUPERACION DE ERRORES SE ENCARGA DE ESTO? 
+			default: break; // LA RECUPERACION DE ERRORES SE ENCARGA DE ESTO? 
 		}
 
 		constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
 	}
 
-	if( inf_id->desc.part_var.arr.cant_elem < cant_aux )
+	if( existe_cons_ent == 0 ){
+		*cant_elem_aux = cant_iniciadores;
+	} else if( *cant_elem_aux < cant_iniciadores ){
 		error_handler(76);	
 		// HAY QUE HACER ALGUN CAMBIO EN LA TABLA DE SIMBOLOS O ALGO? PUES, HAY MAS VALORES QUE ESPACIO EN EL ARREGLO.
+	}
 	if (error == 1)
 		error_handler(77);
 }
@@ -461,6 +480,7 @@ void proposicion_e_s(set folset)
 	{
 	case CIN:
 	case CSHR:
+		llamado_factor = 1;
 		match(CIN, 29);
 		match(CSHR, 30);
 		variable(folset | CSHR | CIDENT | CPYCOMA, 0);
@@ -474,6 +494,7 @@ void proposicion_e_s(set folset)
 
 	case COUT:
 	case CSHL:
+		llamado_factor = 1;
 		match(COUT, 29);
 		match(CSHL, 31);
 		expresion(folset | CSHL | CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CMAS | CMENOS | CPAR_ABR | CNEG | CPYCOMA);
@@ -614,6 +635,11 @@ void factor(set folset)
 		break;
 
 	case CCONS_STR:
+		if (llamado_factor == 0){
+			error_handler(94);
+		}
+		//printf("Que valor tiene: %d\n", llamado_factor);
+		llamado_factor = 0;
 		scanner();
 		break;
 
@@ -644,8 +670,12 @@ void variable(set folset, int falta_ident )
 	if( falta_ident == 0 ){
 		test(CIDENT, folset | CCOR_ABR | CCOR_CIE, 59);
 
-		if( strcmp( ts[Tipo_Ident( sbol->lexema )].ets->nbre, "TIPOARREGLO" ) == 0 )
-			aux = 1;
+		if (Tipo_Ident( sbol->lexema) == NIL ) {
+			error_handler(71);
+		} else {
+			if( strcmp( ts[Tipo_Ident( sbol->lexema )].ets->nbre, "TIPOARREGLO" ) == 0 )
+		 		aux = 1;
+		}
 
 		match(CIDENT, 17);
 	} else {

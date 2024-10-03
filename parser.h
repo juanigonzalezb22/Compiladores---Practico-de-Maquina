@@ -19,7 +19,7 @@ void lista_declaraciones_param(set);
 void declaracion_parametro(set);
 void declarador_init(set);
 void lista_declaraciones_init(set);
-void lista_inicializadores(set);
+void lista_inicializadores(set, int, int*);
 void lista_proposiciones(set);
 void lista_declaraciones(set);
 void declaracion(set);
