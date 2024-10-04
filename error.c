@@ -143,3 +143,8 @@ else{
 	}
     }
 }
+
+void init_arreglo_errores(){
+	for ( int i=0; i < ERRORES_SEMANTICOS; i++ )
+		errores_semanticos[i] = 0;
+}
