@@ -41,7 +41,7 @@ void init_arreglo_errores();
 #define ERROR_98 27
 #define ERROR_99 28
 #define ERROR_100 29
-
+#define INICIO_BLOQUE_FUNCION 30
 #define EXISTE_CONS_ENT 31
 #define CANT_ELEM_ARREGLO 32
 #define FALTA_IDENT 33

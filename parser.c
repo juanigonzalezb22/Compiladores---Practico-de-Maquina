@@ -101,10 +101,15 @@ void especificador_declaracion(set folset)
 				error_handler(85);
 			}
 		}
+		if (inf_id->ptr_tipo == en_tabla("char") || inf_id->ptr_tipo== en_tabla("int") || inf_id->ptr_tipo == en_tabla("float")){
+			errores_semanticos[ERROR_88] = 1;
+		}
 		insertarTS();
 		errores_semanticos[ POSICION_FUNCION ] = en_tabla( aux );
 		definicion_funcion(folset);
-		mostrar_tabla();
+		errores_semanticos[ERROR_88] = 0;
+		errores_semanticos[ERROR_89] = 0;
+		//mostrar_tabla();
 		break;
 	case CASIGNAC:
 	case CCOR_ABR:
@@ -134,19 +139,8 @@ void definicion_funcion(set folset)
 		lista_declaraciones_param( CPAR_CIE | CLLA_ABR| folset); 
 	}
 	match(CPAR_CIE, 21);
-	if (Tipo_Ident(inf_id->nbre)!= en_tabla("void") && Tipo_Ident(inf_id->nbre)!= en_tabla("TIPOERROR")){
-		errores_semanticos[ERROR_88] = 1;
-	}
 	insertarTS();
-
 	proposicion_compuesta(folset);
-	if (errores_semanticos[ERROR_88] == 1){
-		if (errores_semanticos[ERROR_89] == 0){
-			error_handler(88);
-		}
-	}
-	errores_semanticos[ERROR_88] = 0;
-	errores_semanticos[ERROR_89] = 0;
 	pop_nivel(); // TERMINA BLOQUE LEXICO
 }
 
@@ -379,6 +373,11 @@ void proposicion_compuesta(set folset)
 	{
 		lista_proposiciones(folset | CLLA_CIE);
 	}
+	if (errores_semanticos[ERROR_88] == 1){
+		if (errores_semanticos[ERROR_89] == 0 && get_nivel() == 1){
+				error_handler(88);
+		}
+	}
 	match(CLLA_CIE, 25);
 	//mostrar_tabla();
 	//pop_nivel();
@@ -473,7 +472,7 @@ void proposicion(set folset)
 	default:
 		error_handler(26);
 	}
-
+	
 }
 
 
@@ -526,7 +525,6 @@ void proposicion_seleccion(set folset)
 		proposicion(folset);
 		pop_nivel();
 	}
-	
 }
 
 
@@ -555,12 +553,20 @@ void proposicion_e_s(set folset)
 		errores_semanticos[ERROR_94] = 1;
 		match(COUT, 29);
 		match(CSHL, 31);
+		errores_semanticos[DESDE_WHILE_IF] = 1;
 		expresion(folset | CSHL | CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CMAS | CMENOS | CPAR_ABR | CNEG | CPYCOMA);
+		if (errores_semanticos[ERROR_96] != 1){
+			error_handler(96);
+		}
 		while (lookahead_in(CSHL))
 		{
 			scanner();
 			expresion(folset | CSHL | CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CMAS | CMENOS | CPAR_ABR | CNEG | CPYCOMA);
+			if (errores_semanticos[ERROR_96] != 1){
+				error_handler(96);
+			}
 		}
+		errores_semanticos[DESDE_WHILE_IF] = 0;
 		match(CPYCOMA, 23);
 		break;
 
@@ -574,8 +580,13 @@ void proposicion_e_s(set folset)
 
 void proposicion_retorno(set folset)
 {
+	errores_semanticos[DESDE_WHILE_IF] = 1;
 	scanner();
 	expresion(folset | CPYCOMA);
+	if (errores_semanticos[ERROR_96] != 1){
+		error_handler(96);
+	}
+	errores_semanticos[DESDE_WHILE_IF] = 0;
 	match(CPYCOMA, 23);
 	
 	test(folset, NADA , 54);
@@ -742,6 +753,9 @@ void factor(set folset)
 
 	case CNEG:
 		scanner();
+		if (Tipo_Ident(sbol->lexema) == en_tabla("void") || Clase_Ident(sbol->lexema) == NIL ){
+			error_handler(96);
+		}
 		expresion(folset);
 		break;
 
