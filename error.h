@@ -1,5 +1,5 @@
 #define E_X_LINEA 20
-#define ERRORES_SEMANTICOS 36
+#define ERRORES_SEMANTICOS 38
 
 int errores_x_linea[ E_X_LINEA ];
 int cant_errores_x_linea;
@@ -11,7 +11,6 @@ void error_handler(int);
 
 void init_arreglo_errores();
 
-// PERDON AGUS, TUVE QUE xd
 #define ERROR_71 0
 #define ERROR_72 1
 #define ERROR_73 2
@@ -48,3 +47,5 @@ void init_arreglo_errores();
 #define FALTA_IDENT 33
 #define ES_CLASE_VARIABLE 34
 #define DESDE_WHILE_IF 35
+#define CANT_PARAMETROS 36
+#define POSICION_FUNCION 37
