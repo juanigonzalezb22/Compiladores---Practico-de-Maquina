@@ -639,22 +639,35 @@ void expresion(set folset)
 				error_handler(82);
 			}	
 			else{
+				if (!lookahead_in(CCONS_ENT | CCONS_FLO | CCONS_CAR)){
 				if (Tipo_Ident(sbol->lexema)!= en_tabla("void") && en_tabla(sbol->lexema)!= NIL && Tipo_Ident(sbol->lexema)!= en_tabla("TIPOERROR")){
-					if ((errores_semanticos [ES_CHAR] == 1 || errores_semanticos [ES_ARRCHAR] == 1) && Tipo_Ident(sbol->lexema) != en_tabla("char") ){
-						error_handler(83);	
+					if(Tipo_Ident(sbol->lexema) == en_tabla("TIPOARREGLO")){
+						if ((errores_semanticos [ES_CHAR] == 1 || errores_semanticos [ES_ARRCHAR] == 1) && ts[en_nivel_actual(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base != 1){
+							error_handler(83);
+						}
+						else if ((errores_semanticos [ES_INT] == 1 || errores_semanticos [ES_ARRINT] == 1) && ts[en_nivel_actual(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base == 3){
+							error_handler(83);
+						}
 					}
-					else if ((errores_semanticos [ES_INT] == 1 || errores_semanticos [ES_ARRINT] == 1) && Tipo_Ident(sbol->lexema) == en_tabla("float")){
-						error_handler(83);
+					else{
+						if ((errores_semanticos [ES_CHAR] == 1 || errores_semanticos [ES_ARRCHAR] == 1) && Tipo_Ident(sbol->lexema) != en_tabla("char") ){
+							error_handler(83);	
+						}
+						else if ((errores_semanticos [ES_INT] == 1 || errores_semanticos [ES_ARRINT] == 1) && Tipo_Ident(sbol->lexema) == en_tabla("float")){
+							error_handler(83);
+						}
 					}
 				}
 				else{
 					error_handler(83);
 				}
+				}
 			}
 			expresion_simple(folset);
+			errores_semanticos[ES_ARRFLOAT]=0;
+			errores_semanticos[ES_ARRINT]=0;
+			errores_semanticos[ES_ARRCHAR]=0;
 			break;
-
-
 		case CDISTINTO:
 		case CIGUAL:
 		case CMENOR:
