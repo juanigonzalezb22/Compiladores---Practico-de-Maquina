@@ -1,6 +1,5 @@
 #include "parser.h"
 
-//int llamado_factor = 0;
 
 int main(int argc, char *argv[])
 {
@@ -26,14 +25,14 @@ int main(int argc, char *argv[])
 void unidad_traduccion(set folset)
 {	
 	test(CVOID | CCHAR | CINT | CFLOAT | folset, NADA , 40);
-	pushTB();  // Inicia un nuevo bloque léxico ???
+	pushTB();  
 	while (lookahead_in(CVOID | CCHAR | CINT | CFLOAT)){
 		declaraciones(CVOID | CCHAR | CINT | CFLOAT | folset);
 	}
 	if(en_tabla("main") == NIL){
-		error_handler(84); //Algo más para hacer?
+		error_handler(84); 
 	}
-	pop_nivel(); // Terminar el bloque léxico ???
+	pop_nivel(); 
 }
 
 
@@ -77,7 +76,7 @@ void especificador_tipo(set folset)
 		break;
 
 	default:
-		inf_id->ptr_tipo = en_tabla("TIPOERROR"); // va aca?
+		inf_id->ptr_tipo = en_tabla("TIPOERROR");
 		error_handler(18);
 	}
 	test(folset, NADA , 42);
@@ -104,21 +103,21 @@ void especificador_declaracion(set folset)
 		if (inf_id->ptr_tipo == en_tabla("char") || inf_id->ptr_tipo== en_tabla("int") || inf_id->ptr_tipo == en_tabla("float")){
 			errores_semanticos[ERROR_88] = 1;
 		}
+		inf_id->cant_byte = 0;
 		insertarTS();
 		errores_semanticos[ POSICION_FUNCION ] = en_tabla( aux );
 		definicion_funcion(folset);
 		errores_semanticos[ERROR_88] = 0;
 		errores_semanticos[ERROR_89] = 0;
-		//mostrar_tabla();
 		break;
 	case CASIGNAC:
 	case CCOR_ABR:
 	case CCOMA:
 	case CPYCOMA:
 		inf_id->clase = CLASVAR;
-		errores_semanticos[ ES_CLASE_VARIABLE ] = 1;
+		//errores_semanticos[ ES_CLASE_VARIABLE ] = 1;
 		declaracion_variable(folset);
-		errores_semanticos[ ES_CLASE_VARIABLE ] = 0;
+		//errores_semanticos[ ES_CLASE_VARIABLE ] = 0;
 		break;
 	default:
 		error_handler(19);
@@ -128,20 +127,19 @@ void especificador_declaracion(set folset)
 
 void definicion_funcion(set folset)
 {	
-	pushTB();  // INICIO BLOQUE LEXICO
-	//errores_semanticos [30] = 1;
+	pushTB();  
 	match(CPAR_ABR, 20);
 	if (lookahead_in(CVOID | CCHAR | CINT | CFLOAT)){
 		if (errores_semanticos[ERROR_86] == 1){ 
-			error_handler(86); //Damos error e igualmente cargamos los parametros para evitar el error de identificador no declarado
+			error_handler(86); 
 		}
 
 		lista_declaraciones_param( CPAR_CIE | CLLA_ABR| folset); 
 	}
 	match(CPAR_CIE, 21);
-	insertarTS();
+	
 	proposicion_compuesta(folset);
-	pop_nivel(); // TERMINA BLOQUE LEXICO
+	pop_nivel(); 
 }
 
 
@@ -193,6 +191,17 @@ void declaracion_parametro(set folset)
 void lista_declaraciones_init(set folset)
 {	
 	int aux = inf_id->ptr_tipo;
+	if(inf_id->ptr_tipo == en_tabla("char")) {
+		inf_id->cant_byte = 1;
+	} else if (inf_id->ptr_tipo == en_tabla("int")) {
+		inf_id->cant_byte = sizeof(int);
+	} else if (inf_id->ptr_tipo == en_tabla("float")) {
+		inf_id->cant_byte = sizeof(float);
+	} else {
+		inf_id->cant_byte = 0;
+		error_handler(73);
+	}
+
 	test(CIDENT, folset | CCOMA | CASIGNAC | CCOR_ABR, 46);
 	match(CIDENT, 17);
 	declarador_init( CCOMA | CIDENT | CASIGNAC | CCOR_ABR | folset);
@@ -200,6 +209,16 @@ void lista_declaraciones_init(set folset)
 	while (lookahead_in(CCOMA | CIDENT | CASIGNAC | CCOR_ABR))
 	{
 		inf_id->ptr_tipo = aux;
+		if(inf_id->ptr_tipo == en_tabla("char")) {
+			inf_id->cant_byte = 1;
+		} else if (inf_id->ptr_tipo == en_tabla("int")) {
+			inf_id->cant_byte = sizeof(int);
+		} else if (inf_id->ptr_tipo == en_tabla("float")) {
+			inf_id->cant_byte = sizeof(float);
+		} else {
+			inf_id->cant_byte = 0;
+			error_handler(73);
+		}
 		match(CCOMA, 64);
 		match(CIDENT, 17);
 		declarador_init( CCOMA | CIDENT | CASIGNAC | CCOR_ABR | folset);
@@ -210,10 +229,12 @@ void lista_declaraciones_init(set folset)
 
 void declaracion_variable(set folset)
 {
+	int aux = inf_id->ptr_tipo;
 	declarador_init( CCOMA | CIDENT | CPYCOMA | folset );
 	if (lookahead_in(CCOMA | CIDENT))
 	{
 		match(CCOMA, 64);
+		inf_id->ptr_tipo = aux;
 		lista_declaraciones_init(CPYCOMA| folset );
 	}
 	match(CPYCOMA, 23);
@@ -229,7 +250,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 	{
 	case CASIGNAC:
 		if( errores_semanticos[ ES_CLASE_VARIABLE ] == 0 )
-			error_handler(82);
+			error_handler(ERROR_82);
 		
 		match(CASIGNAC,66);
 		constante(folset);
@@ -239,6 +260,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 	case CLLA_ABR:
 	case CLLA_CIE:
 		match(CCOR_ABR, 35);
+
 		if (lookahead_in(CCONS_ENT)){
 			inf_id->desc.part_var.arr.cant_elem = atoi(lookahead_lexema());
 			errores_semanticos[ CANT_ELEM_ARREGLO ] = atoi(lookahead_lexema());
@@ -272,7 +294,6 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 				error_handler(74);
 			}
 		}
-		
 		inf_id->desc.part_var.arr.cant_elem = errores_semanticos[ CANT_ELEM_ARREGLO ];
 		if(inf_id->ptr_tipo == en_tabla("char")) {
 			inf_id->cant_byte = inf_id->desc.part_var.arr.cant_elem;
@@ -285,18 +306,27 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 		inf_id->desc.nivel = get_nivel();
 		errores_semanticos[ CANT_ELEM_ARREGLO ] = 0;
 		errores_semanticos[ EXISTE_CONS_ENT ] = 0;
+		if( inf_id->desc.part_var.arr.ptero_tipo_base == en_tabla("void") ) {
+			inf_id->ptr_tipo = en_tabla("TIPOERROR");
+		}
 	}
+
+	inf_id->desc.nivel = get_nivel();
+	inf_id->clase = CLASVAR;
+
 	if(inf_id->ptr_tipo == en_tabla("void")) {
+		inf_id->ptr_tipo = en_tabla("TIPOERROR");
 		error_handler(73);
 	}
 	insertarTS();
+	
 	test(folset, NADA , 48);
 }
 
 
 void lista_inicializadores(set folset)
 {
-	int cant_iniciadores = 0;	// cantidad de elementos inicializados
+	int cant_iniciadores = 0;	
 
 	switch (lookahead()) {
 		case CCONS_ENT:
@@ -314,7 +344,7 @@ void lista_inicializadores(set folset)
 				errores_semanticos[ ERROR_77 ] = 1; 
 			cant_iniciadores++;
 			break;
-		default: break; // LA RECUPERACION DE ERRORES SE ENCARGA DE ESTO? 
+		default: break; 
 	}
 
 	constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
@@ -338,7 +368,7 @@ void lista_inicializadores(set folset)
 					errores_semanticos[ ERROR_77 ] = 1;
 				cant_iniciadores++;
 				break;
-			default: break; // LA RECUPERACION DE ERRORES SE ENCARGA DE ESTO? 
+			default: break; 
 		}
 		constante(folset | CCOMA | CCONS_ENT | CCONS_FLO | CCONS_CAR);
 	}
@@ -360,11 +390,9 @@ void proposicion_compuesta(set folset)
 	test(CLLA_ABR, folset | CLLA_CIE | CVOID | CCHAR | CINT | CFLOAT | CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG |
 	 		CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN, 49);
 	match(CLLA_ABR, 24);
-	//if (errores_semanticos[30] == 0){
-	//	pushTB();
-	//}
 	if (lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
 	{
+
 		lista_declaraciones(folset | CLLA_ABR | CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG | CCONS_ENT | CCONS_FLO |
 		 										CCONS_CAR | CCONS_STR | CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN | CLLA_CIE);
 	}
@@ -379,19 +407,17 @@ void proposicion_compuesta(set folset)
 		}
 	}
 	match(CLLA_CIE, 25);
-	//mostrar_tabla();
-	//pop_nivel();
 	test(folset, NADA , 50);
 }
 
 
 void lista_declaraciones(set folset)
 {
-	errores_semanticos[ ES_CLASE_VARIABLE ] = 1;
+	//errores_semanticos[ ES_CLASE_VARIABLE ] = 1;
 	declaracion(folset | CVOID | CCHAR | CINT | CFLOAT);
 	while (lookahead_in(CVOID | CCHAR | CINT | CFLOAT))
 		declaracion(folset | CVOID | CCHAR | CINT | CFLOAT);
-	errores_semanticos[ ES_CLASE_VARIABLE ] = 0;
+	//errores_semanticos[ ES_CLASE_VARIABLE ] = 0;
 }
 
 
@@ -400,7 +426,6 @@ void declaracion(set folset)
 	especificador_tipo(folset | CIDENT | CPYCOMA);
 
 	lista_declaraciones_init(folset | CPYCOMA);
-
 	match(CPYCOMA, 23);
 
 	test(folset, NADA , 51);
@@ -491,7 +516,7 @@ void proposicion_iteracion(set folset)
 	}
 	errores_semanticos[DESDE_WHILE_IF] = 0;
 	pushTB();
-	//errores_semanticos[30] = 0;
+
 	proposicion(folset);
 	pop_nivel();
 }
@@ -513,7 +538,6 @@ void proposicion_seleccion(set folset)
 	}
 	errores_semanticos[DESDE_WHILE_IF] = 0;
 	pushTB();
-	//errores_semanticos[30] = 0;
 	proposicion(folset | CLLA_ABR | CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG | CCONS_ENT | CCONS_FLO | 
 											CCONS_CAR | CCONS_STR | CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN | CELSE);
 	pop_nivel();
@@ -521,7 +545,6 @@ void proposicion_seleccion(set folset)
 	{
 		scanner();
 		pushTB();
-	//	errores_semanticos[30] = 0;
 		proposicion(folset);
 		pop_nivel();
 	}
@@ -534,7 +557,6 @@ void proposicion_e_s(set folset)
 	{
 	case CIN:
 	case CSHR:
-		//llamado_factor = 1;
 		errores_semanticos[ERROR_94] = 1;
 		match(CIN, 29);
 		match(CSHR, 30);
@@ -549,7 +571,6 @@ void proposicion_e_s(set folset)
 
 	case COUT:
 	case CSHL:
-		//llamado_factor = 1;
 		errores_semanticos[ERROR_94] = 1;
 		match(COUT, 29);
 		match(CSHL, 31);
@@ -614,8 +635,25 @@ void expresion(set folset)
 		{
 		case CASIGNAC:
 			scanner();
+			if( errores_semanticos[ ES_CLASE_VARIABLE ] == 0 ){
+				error_handler(82);
+			}	
+			else{
+				if (Tipo_Ident(sbol->lexema)!= en_tabla("void") && en_tabla(sbol->lexema)!= NIL && Tipo_Ident(sbol->lexema)!= en_tabla("TIPOERROR")){
+					if ((errores_semanticos [ES_CHAR] == 1 || errores_semanticos [ES_ARRCHAR] == 1) && Tipo_Ident(sbol->lexema) != en_tabla("char") ){
+						error_handler(83);	
+					}
+					else if ((errores_semanticos [ES_INT] == 1 || errores_semanticos [ES_ARRINT] == 1) && Tipo_Ident(sbol->lexema) == en_tabla("float")){
+						error_handler(83);
+					}
+				}
+				else{
+					error_handler(83);
+				}
+			}
 			expresion_simple(folset);
 			break;
+
 
 		case CDISTINTO:
 		case CIGUAL:
@@ -685,8 +723,12 @@ void termino(set folset)
 
 void factor(set folset)
 {
+	errores_semanticos[ES_FLOAT]=0;
+	errores_semanticos[ES_INT]=0;
+	errores_semanticos[ES_CHAR]=0;
+	errores_semanticos[ ES_CLASE_VARIABLE ] = 0;
 	test(CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CPAR_ABR | CNEG, folset, 57);
-
+	errores_semanticos[ES_VAR_1] = 0;
 	switch (lookahead())
 	{
 	case CIDENT:
@@ -696,9 +738,7 @@ void factor(set folset)
 			strcpy(inf_id->nbre,sbol->lexema);
 			inf_id->ptr_tipo = en_tabla("TIPOERROR"); 
 		  inf_id->desc.nivel = get_nivel();
-			
 			match(CIDENT, 17);
-			//scanner();
 
 			errores_semanticos[ FALTA_IDENT ] = 1;
 			if( lookahead_in(CPAR_ABR) ){
@@ -714,6 +754,30 @@ void factor(set folset)
 			} else {
 				if (errores_semanticos[DESDE_WHILE_IF] == 1 && ( Tipo_Ident(sbol->lexema)!= en_tabla("void") && Tipo_Ident(sbol->lexema)!= en_tabla("TIPOERROR") )){
 					errores_semanticos[ERROR_96] = 1;
+				}	
+				if ( Tipo_Ident(sbol->lexema)!= en_tabla("void") && Tipo_Ident(sbol->lexema)!= en_tabla("TIPOERROR")){
+					if(Tipo_Ident(sbol->lexema) == en_tabla("TIPOARREGLO")){
+						if (ts[en_nivel_actual(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base == 2){
+							errores_semanticos[ES_ARRINT]=1;
+						}
+						else if (ts[en_nivel_actual(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base == 3){
+							errores_semanticos[ES_ARRFLOAT]=1;
+						}
+						else{
+							errores_semanticos[ES_ARRCHAR]=1;
+						}
+					}
+					else{
+					if(Tipo_Ident(sbol->lexema) == en_tabla("float")){
+						errores_semanticos[ES_FLOAT]=1;
+					}
+					else if (Tipo_Ident(sbol->lexema) == en_tabla("int")){ 
+						errores_semanticos[ES_INT]=1;
+					}
+					else{
+						errores_semanticos[ES_CHAR]=1;
+					}
+					}
 				}
 				match(CIDENT, 17);
 				if( lookahead_in(CPAR_ABR) ){
@@ -721,6 +785,7 @@ void factor(set folset)
 				}
 				errores_semanticos[ FALTA_IDENT ] = 1;
 				variable(folset);
+				errores_semanticos[ ES_CLASE_VARIABLE ] = 1;
 			}
 		}
 		errores_semanticos[ FALTA_IDENT ] = 0;
@@ -768,7 +833,6 @@ void factor(set folset)
 
 void variable(set folset )
 {
-	// A LOS PUNTOS DE RECONFIGURACION DE LOS TEST, NO LE FALTAN LOS FIRST1 DE EXPRESION????
 	if( errores_semanticos[ FALTA_IDENT ] == 0 ){
 		test(CIDENT, folset | CCOR_ABR | CCOR_CIE | CMAS | CMENOS | CPAR_ABR | CNEG | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR, 59);
 		if (Tipo_Ident( sbol->lexema ) == NIL ) {
@@ -781,11 +845,6 @@ void variable(set folset )
 	} else {
 		test(folset | CCOR_ABR, CCOR_CIE | CMAS | CMENOS | CPAR_ABR | CNEG | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR, 59); // CHEQUEAR TEST
 	}
-
-	/* El alumno debera verificar con una consulta a TS
-	si, siendo la variable un arreglo, corresponde o no
-	verificar la presencia del subindice */
-
 	if (lookahead_in(CCOR_ABR))
 	{
 		if( errores_semanticos[ ERROR_78 ] == 1 ){
@@ -818,7 +877,7 @@ void llamada_funcion(set folset)
 		if( Clase_Ident( aux ) == 3 && (strcmp( ts[Tipo_Ident( aux )].ets->nbre, "TIPOERROR" ) != 0) ){
 			errores_semanticos[ POSICION_FUNCION ] = en_tabla( aux );
 		} else {
-			error_handler(99);	// ES NECESARIO MOSTRAR EL ERROR 99 SI SABEMOS QUE EL INDENT NO FUE DECLARADO?
+			error_handler(99);	
 		}
 	}
 
