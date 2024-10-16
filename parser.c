@@ -99,6 +99,8 @@ void especificador_declaracion(set folset)
 			if (inf_id->ptr_tipo != en_tabla("void")){
 				error_handler(85);
 			}
+		} else {
+			errores_semanticos[ERROR_86] = 0;
 		}
 		if (inf_id->ptr_tipo == en_tabla("char") || inf_id->ptr_tipo== en_tabla("int") || inf_id->ptr_tipo == en_tabla("float")){
 			errores_semanticos[ERROR_88] = 1;
@@ -280,7 +282,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("float");
 		} else {
 			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("TIPOERROR");
-			error_handler(73);
+			//error_handler(73);	//PARA LA TERCER ENTREGA CHUSMEAR QUE ESTEN BIEN ESTOS CONTROLES, YO ME ENTIENDO JAJA
 		}
 
 		if (lookahead_in(CASIGNAC | CLLA_ABR | CLLA_CIE))
@@ -316,7 +318,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 
 	if(inf_id->ptr_tipo == en_tabla("void")) {
 		inf_id->ptr_tipo = en_tabla("TIPOERROR");
-		error_handler(73);
+		//error_handler(73); 	//PARA LA TERCER ENTREGA CHUSMEAR QUE ESTEN BIEN ESTOS CONTROLES, YO ME ENTIENDO JAJA
 	}
 	insertarTS();
 	
@@ -697,16 +699,13 @@ void expresion_simple(set folset)
 	test(CMAS | CMENOS | COR | folset, CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CNEG | CPAR_ABR, 69);
 	while (lookahead_in(CMAS | CMENOS | COR | CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CNEG | CPAR_ABR))
 	{
-		if (lookahead_in(CMAS | CMENOS | COR))
-		{
+		if (lookahead_in(CMAS | CMENOS | COR)) {
 			if (errores_semanticos[ERROR_96] != 1){
 				if(lookahead_in(COR))
 					error_handler(96);
 			}
 			scanner();
-		}
-		else
-		{
+		} else {
 			error_handler(65);
 		}
 		errores_semanticos[ERROR_96] = 0;
