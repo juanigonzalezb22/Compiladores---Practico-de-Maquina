@@ -3,9 +3,7 @@
     "*.embeddedhtml": "html",
     "var_globales.h": "c",
     "stdio.h": "c",
-    "string.h": "c",
-    "util.h": "c",
-    "ts.h": "c"
+    "string.h": "c"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

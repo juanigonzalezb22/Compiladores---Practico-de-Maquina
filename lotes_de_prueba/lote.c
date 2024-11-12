@@ -50,7 +50,3 @@ void main(){
     c = z[3];
     a = 5;
 }
-
-void main(){
-    
-}
