@@ -1,6 +1,8 @@
 char a;
 
 void main(){
+    void aa;
+
     int a;
     float b;
     char c;

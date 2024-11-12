@@ -26,7 +26,7 @@ void scanner()
 void init_parser(int argc, char *argv[])
 {
 	linea = (char *) malloc (2);
-	strcpy(linea, "");
+	strcat(linea, "");
 	nro_linea = 0;
 
 	if(argc != 3)
@@ -48,6 +48,12 @@ void init_parser(int argc, char *argv[])
 		}
 		else
 		{
+		
+		/*Aquí debe habilitarse la opción "-o" que carga el programa objeto en la máquina abstracta C 
+		e inmediatamente debe procederse a la ejecución del mismo. Para ello, deben utilizarse de forma conveniente,
+		las funciones "cargar_codgen", "impr_codgen" e "interprete" provistas en el archivo "sistejec.c"
+		*/
+		
 			error_handler(7);
 			error_handler(COD_IMP_ERRORES);
 			exit(1);
@@ -89,7 +95,6 @@ set lookahead_in(set conjunto)
 {
 	return lookahead() & conjunto;
 }
-
 
 void test( set conjunto1, set puntos_de_reconfiguracion, int nro_error ){
 	if( !lookahead_in(conjunto1) ){

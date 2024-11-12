@@ -99,6 +99,8 @@ void especificador_declaracion(set folset)
 			if (inf_id->ptr_tipo != en_tabla("void")){
 				error_handler(85);
 			}
+		} else {
+			errores_semanticos[ERROR_86] = 0;
 		}
 		if (inf_id->ptr_tipo == en_tabla("char") || inf_id->ptr_tipo== en_tabla("int") || inf_id->ptr_tipo == en_tabla("float")){
 			errores_semanticos[ERROR_88] = 1;
@@ -164,6 +166,10 @@ void declaracion_parametro(set folset)
 {	
 	especificador_tipo(folset | CAMPER | CIDENT | CCOR_ABR | CCOR_CIE);
 	
+	if(inf_id->ptr_tipo == en_tabla("void")){
+		error_handler(73);
+	}
+
 	if (lookahead_in(CAMPER)){
 		scanner();
 		errores_semanticos[ERROR_92] = 1;
@@ -199,7 +205,7 @@ void lista_declaraciones_init(set folset)
 		inf_id->cant_byte = sizeof(float);
 	} else {
 		inf_id->cant_byte = 0;
-		error_handler(73);
+		//error_handler(73);
 	}
 
 	test(CIDENT, folset | CCOMA | CASIGNAC | CCOR_ABR, 46);
@@ -217,7 +223,7 @@ void lista_declaraciones_init(set folset)
 			inf_id->cant_byte = sizeof(float);
 		} else {
 			inf_id->cant_byte = 0;
-			error_handler(73);
+			//error_handler(73);
 		}
 		match(CCOMA, 64);
 		match(CIDENT, 17);
@@ -314,7 +320,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 	inf_id->desc.nivel = get_nivel();
 	inf_id->clase = CLASVAR;
 
-	if(inf_id->ptr_tipo == en_tabla("void")) {
+	if(inf_id->ptr_tipo == en_tabla("void")){
 		inf_id->ptr_tipo = en_tabla("TIPOERROR");
 		error_handler(73);
 	}
@@ -642,10 +648,10 @@ void expresion(set folset)
 				if (!lookahead_in(CCONS_ENT | CCONS_FLO | CCONS_CAR)){
 				if (Tipo_Ident(sbol->lexema)!= en_tabla("void") && en_tabla(sbol->lexema)!= NIL && Tipo_Ident(sbol->lexema)!= en_tabla("TIPOERROR")){
 					if(Tipo_Ident(sbol->lexema) == en_tabla("TIPOARREGLO")){
-						if ((errores_semanticos [ES_CHAR] == 1 || errores_semanticos [ES_ARRCHAR] == 1) && ts[en_nivel_actual(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base != 1){
+						if ((errores_semanticos [ES_CHAR] == 1 || errores_semanticos [ES_ARRCHAR] == 1) && ts[en_tabla(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base != 1){
 							error_handler(83);
 						}
-						else if ((errores_semanticos [ES_INT] == 1 || errores_semanticos [ES_ARRINT] == 1) && ts[en_nivel_actual(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base == 3){
+						else if ((errores_semanticos [ES_INT] == 1 || errores_semanticos [ES_ARRINT] == 1) && ts[en_tabla(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base == 3){
 							error_handler(83);
 						}
 					}
@@ -697,16 +703,13 @@ void expresion_simple(set folset)
 	test(CMAS | CMENOS | COR | folset, CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CNEG | CPAR_ABR, 69);
 	while (lookahead_in(CMAS | CMENOS | COR | CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CNEG | CPAR_ABR))
 	{
-		if (lookahead_in(CMAS | CMENOS | COR))
-		{
+		if (lookahead_in(CMAS | CMENOS | COR)) {
 			if (errores_semanticos[ERROR_96] != 1){
 				if(lookahead_in(COR))
 					error_handler(96);
 			}
 			scanner();
-		}
-		else
-		{
+		} else {
 			error_handler(65);
 		}
 		errores_semanticos[ERROR_96] = 0;
@@ -745,6 +748,7 @@ void factor(set folset)
 	switch (lookahead())
 	{
 	case CIDENT:
+		//mostrar_tabla();
 		errores_semanticos[ERROR_96] = 0;
 		if( Clase_Ident(sbol->lexema) == NIL ){	
 			error_handler(71);
@@ -770,15 +774,17 @@ void factor(set folset)
 				}	
 				if ( Tipo_Ident(sbol->lexema)!= en_tabla("void") && Tipo_Ident(sbol->lexema)!= en_tabla("TIPOERROR")){
 					if(Tipo_Ident(sbol->lexema) == en_tabla("TIPOARREGLO")){
-						if (ts[en_nivel_actual(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base == 2){
-							errores_semanticos[ES_ARRINT]=1;
-						}
-						else if (ts[en_nivel_actual(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base == 3){
-							errores_semanticos[ES_ARRFLOAT]=1;
-						}
-						else{
-							errores_semanticos[ES_ARRCHAR]=1;
-						}
+					//	if(en_nivel_actual(sbol->lexema) != NIL){
+							if (ts[en_tabla(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base == 2){
+								errores_semanticos[ES_ARRINT]=1;
+							}
+							else if (ts[en_tabla(sbol->lexema)].ets->desc.part_var.arr.ptero_tipo_base == 3){
+								errores_semanticos[ES_ARRFLOAT]=1;
+							}
+							else{
+								errores_semanticos[ES_ARRCHAR]=1;
+							}
+					//	}
 					}
 					else{
 					if(Tipo_Ident(sbol->lexema) == en_tabla("float")){
@@ -898,7 +904,6 @@ void llamada_funcion(set folset)
 	if (lookahead_in(CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR))
 		lista_expresiones(folset | CPAR_CIE);
 	match(CPAR_CIE, 21);
-
 	if( ts[errores_semanticos[ POSICION_FUNCION ]].ets->desc.part_var.sub.cant_par != errores_semanticos[ CANT_PARAMETROS ] ){
 		error_handler(90);
 	}
