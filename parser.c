@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
 	init_parser(argc, argv);
-
+	//hola
 	inic_tablas();
 
 	init_arreglo_errores();
