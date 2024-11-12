@@ -286,7 +286,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("float");
 		} else {
 			inf_id->desc.part_var.arr.ptero_tipo_base = en_tabla("TIPOERROR");
-			error_handler(73);
+			//error_handler(73);	//PARA LA TERCER ENTREGA CHUSMEAR QUE ESTEN BIEN ESTOS CONTROLES, YO ME ENTIENDO JAJA
 		}
 
 		if (lookahead_in(CASIGNAC | CLLA_ABR | CLLA_CIE))
@@ -322,7 +322,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 
 	if(inf_id->ptr_tipo == en_tabla("void")){
 		inf_id->ptr_tipo = en_tabla("TIPOERROR");
-		error_handler(73);
+		//error_handler(73); 	//PARA LA TERCER ENTREGA CHUSMEAR QUE ESTEN BIEN ESTOS CONTROLES, YO ME ENTIENDO JAJA
 	}
 	insertarTS();
 	
