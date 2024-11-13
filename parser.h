@@ -5,6 +5,7 @@
 #include "util.h"
 #include "error.h"
 #include "ts.h"
+#include "sistejec.h"
 
 int last_call=0;
 

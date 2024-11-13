@@ -1,10 +1,12 @@
 #include "parser.h"
 
 
+
 int main(int argc, char *argv[])
 {
+	CODE[0] = INPP;
+	GEN = 1;
 	init_parser(argc, argv);
-
 	inic_tablas();
 
 	init_arreglo_errores();
@@ -12,7 +14,9 @@ int main(int argc, char *argv[])
 	unidad_traduccion(CEOF);
 
 	match(CEOF, 9);
-
+	if (GEN ==1){
+		//Debería ir el parar XD
+	}
 	last_call = 1;
 
 	error_handler(COD_IMP_ERRORES);

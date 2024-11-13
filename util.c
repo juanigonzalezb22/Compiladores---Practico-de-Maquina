@@ -5,6 +5,8 @@
 #include "codigos.h"
 #include "error.h"
 #include "ts.h"
+#include "sistejec.h"
+
 
 void scanner()
 {	
@@ -48,15 +50,17 @@ void init_parser(int argc, char *argv[])
 		}
 		else
 		{
-		
-		/*Aquí debe habilitarse la opción "-o" que carga el programa objeto en la máquina abstracta C 
-		e inmediatamente debe procederse a la ejecución del mismo. Para ello, deben utilizarse de forma conveniente,
-		las funciones "cargar_codgen", "impr_codgen" e "interprete" provistas en el archivo "sistejec.c"
-		*/
-		
-			error_handler(7);
-			error_handler(COD_IMP_ERRORES);
-			exit(1);
+			if(strcmp(argv[1], "-o") == 0){
+				cargar_codgen(argv[2]);
+				impr_codgen();
+				interprete();
+				exit(1);
+			}
+			else{
+				error_handler(7);
+				error_handler(COD_IMP_ERRORES);
+				exit(1);
+			}
 		}
 	}
 
@@ -75,8 +79,10 @@ void match(set codigo, int ne)
 				//printf("IDENTIFICADOR: %s\n", inf_id->nbre);
 			}
 			scanner();
-		} else
+	} else{
         error_handler(ne);
+		GEN = 0;
+	}
 }
 
 
