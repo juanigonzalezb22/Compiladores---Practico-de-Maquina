@@ -106,6 +106,7 @@ set lookahead_in(set conjunto)
 void test( set conjunto1, set puntos_de_reconfiguracion, int nro_error ){
 	if( !lookahead_in(conjunto1) ){
 		error_handler(nro_error);
+		GEN = 0;
 		conjunto1 |= puntos_de_reconfiguracion;
 		while(!lookahead_in(conjunto1)){
 			scanner();

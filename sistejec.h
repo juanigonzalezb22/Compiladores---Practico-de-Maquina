@@ -18,7 +18,7 @@
 
 float CODE[TAM_PROG]; //O se usa el P[]?
 int GEN;
-
+char CONSTANTES_STRING[TAM_CTES];
     
 /* ----------------- C�DIGOS PARA LAS INSTRUCCIONES ------------- */
 
@@ -87,3 +87,4 @@ int guardar_codgen(float [], char [], char *);
 void impr_codgen(); //Será?
 void interprete();
 
+void impr_codgen2();
