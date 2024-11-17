@@ -1,11 +1,22 @@
+char fun1(){
+  return 'a';
+}
+
 void main() {
   char y[5];
-  int a=7, e, f;
+  int a = 5, e, f, p;
   float b = 3.2, h;
   char c = 'a', z = 'Z';
-  while(a == 5){
-    e = 3;
-    a = a - 1;
+  while (-c){
+    int x;
   }
-  cin >> c >> a >> b;
+  
+  while( a + ( b - 3.5) == c ){
+    int a;
+  }
+  h = 5.7 * (e + (f = p));
+  fun1();
+  
+  cout << a << a << b ;
+
 }

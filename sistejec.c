@@ -848,14 +848,15 @@ void impr_codgen2()
 			case CRCT:
 				printf("CRCT ");
 				i++;
-				printf("%d, ", (int) CODE[i++]);
+				//printf("%d, ", (int) CODE[i++]);
+				printf("%.2f, ", CODE[i++]);
 				if(CODE[i-1] == 0)
-					printf("%c\n", (char) CODE[i++]);
-            else
+					printf("%d\n", (int) CODE[i++]);
+           		else
 					if(CODE[i-1] == 1)
 						printf("%d\n", (int) CODE[i++]);
-               else
-						printf("%.2f\n", (float) CODE[i++]);
+               		else
+						printf("%d\n", (int) CODE[i++]);
 				break;
 
 			case CRVL:
