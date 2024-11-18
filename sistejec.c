@@ -85,6 +85,7 @@ void interprete()
 			switch((int)P[rpi])
 			{
 				case CRCT:  			// CRCT tipo cte
+					//printf("CRCT\n");
 					rpi++;
 					switch((int)P[rpi])
 					{
@@ -108,7 +109,8 @@ void interprete()
 					break;
 					
 				case CRVL:				// CRVL nivel despl tipo
-				{ 			
+				{ 		
+					//printf("CRVL\n");	
 					int nivel, despl, tipo, i;
 					rpi++;
 					nivel = (int)P[rpi++];
@@ -139,6 +141,7 @@ void interprete()
 				}
 				
 				case SUM: 				// SUM tipo
+					//printf("SUM\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -158,6 +161,7 @@ void interprete()
 					break;
 
 				case SUB: 				// SUB tipo
+					//printf("SUB\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -177,6 +181,7 @@ void interprete()
 					break;
 
 				case MUL: 				// MUL tipo
+					//printf("MUL\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -196,6 +201,7 @@ void interprete()
 					break;
 
 				case DIV: 				// DIV tipo
+					//printf("DIV\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -215,6 +221,7 @@ void interprete()
 					break;
 
 				case INV:				// INV tipo
+					//printf("INV\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -232,6 +239,7 @@ void interprete()
 					break;
 
 				case AND:				// AND  tipo
+					//printf("AND\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -253,6 +261,7 @@ void interprete()
 					break;
 
 				case OR:					// OR  tipo
+					//printf("OR\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -274,6 +283,7 @@ void interprete()
 					break;
 
 				case NEG: 				// NEG  tipo
+					//printf("NEG\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -292,6 +302,7 @@ void interprete()
 					break;
 
 				case CMMA: 				// CMMA tipo
+					//printf("CMMA\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -320,6 +331,7 @@ void interprete()
 					break;
 				
 				case CMME: 				// CMME tipo
+					//printf("CMME\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -348,6 +360,7 @@ void interprete()
 					break;
 
 				case CMIG: 				// CMIG tipo
+					//printf("CMIG\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -376,6 +389,7 @@ void interprete()
 					break;
 
 				case CMAI: 				// CMAI tipo
+					//printf("CMAI\n");
 					rpi++;
 					switch ((int)P[rpi++])
 					{
@@ -404,6 +418,7 @@ void interprete()
 					break;
 
 				case CMEI: 				// CMEI tipo
+					//printf("CMEI\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -432,6 +447,7 @@ void interprete()
 					break;
 
 				case CMNI: 				// CMNI tipo
+					//printf("CMNI\n");
 					rpi++;
 					switch ((int)P[rpi++])
 					{
@@ -461,6 +477,7 @@ void interprete()
 
 				case ALM:				// ALM nivel despl tipo
 				{ 				
+					//printf("ALM\n");
 					int nivel, despl, tipo, i;
 					rpi++;
 					nivel = (int)P[rpi++];
@@ -493,16 +510,19 @@ void interprete()
 				}
       
 				case ALOC: 				// ALOC cant_bytes
+					//printf("ALOC\n");
 					rpi++;
 					ls += (int)P[rpi++]; 
 					break;
 
 				case DMEM: 				// DMEN cant_bytes
+					//printf("DMEM\n");
 					rpi++;
 					ls -= (int)P[rpi++]; 
 					break;
 
 				case INPP: 
+					//printf("INPP\n");
 					rpi++;
 					memset(S, 0, TAM_STACK);
 					ls = 0;
@@ -511,6 +531,7 @@ void interprete()
 					break;
 
 				case CAST: 				// CAST tipo1 -> tipo2
+					//printf("CAST\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -538,6 +559,7 @@ void interprete()
 					break;
 				
 				case LEER: 				// LEER tipo
+					//printf("LEER\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -557,6 +579,7 @@ void interprete()
 					break;
        	
 				case IMPR: 				// IMPR tipo
+					//printf("IMPR\n");
 					rpi++;
 					switch((int)P[rpi++])
 					{
@@ -576,18 +599,21 @@ void interprete()
 					break;
     	
 				case CRCTS: 			// CRCTS k
+					//printf("CRCTS\n");
 					rpi++;
 					(* (int *) & S[ls]) = (int) P[rpi++];
 					ls += te;
 					break;
 
 				case IMPRCS: 			// IMPRCS
+					//printf("IMPRCS\n");
 					rpi++;
 					printf("%s", &C[(* (int *) & S[ls-te])] );
 					ls -= te;
 					break;
 
 				case BIFS: 				// BIFS desp
+					//printf("BIFS\n");
 					rpi++;
 					rpi += (int) P[rpi];
 					break;
@@ -598,21 +624,26 @@ void interprete()
 					{
 						case 0: 
 							if(S[ls-tc] == 0) rpi += (int) P[rpi];
-								ls -= tc;  
+							else rpi++;							
+								ls -= tc;
 							break;
 						case 1: 
 							if((* (int *) &S[ls-te]) == 0) rpi += (int) P[rpi];
+							else rpi++;
 								ls -= te;
 							break;
 						case 2: 
 							if((* (float *) &S[ls-tf]) == 0) rpi += (int) P[rpi];
+							else rpi++;
 								ls -= tf;
+							
 							break;
 					}
 					break;
 
 				case ENBL:				// ENBL k
 				{			
+					//printf("ENBL\n");
 					int k; 
 					rpi++;
 					k = (int)P[rpi++]; 
@@ -623,6 +654,7 @@ void interprete()
 				}
 
 				case FINB: 				// FINB k
+					//printf("FINB\n");
 					rpi++;
 					ls -= te;
 					D[ (int)P[rpi++] ] = (* (int *) &S[ls]);

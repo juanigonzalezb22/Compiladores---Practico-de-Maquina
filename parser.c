@@ -683,8 +683,9 @@ void proposicion_iteracion(set folset)
 		CODE[contador++] = get_nivel();
 
 		CODE[contador++] = BIFS ;
-		CODE[contador++] = desplazamientoAux ;
-		CODE[salto] = contador;
+		CODE[contador] = desplazamientoAux - contador;
+		contador++;
+		CODE[salto] = contador - salto;
 	}
 	pop_nivel();
 }
