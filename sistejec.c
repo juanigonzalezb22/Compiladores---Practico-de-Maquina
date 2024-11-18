@@ -598,7 +598,7 @@ void interprete()
 					{
 						case 0: 
 							if(S[ls-tc] == 0) rpi += (int) P[rpi];
-								ls -= tc;   
+								ls -= tc;  
 							break;
 						case 1: 
 							if((* (int *) &S[ls-te]) == 0) rpi += (int) P[rpi];
@@ -640,6 +640,7 @@ void interprete()
 void impr_codgen()
 {
 	int i = 0;
+	printf("\n");
 	while(P[i]!= PARAR)
 	{
 		switch((int) P[i])
@@ -849,14 +850,14 @@ void impr_codgen2()
 				printf("CRCT ");
 				i++;
 				//printf("%d, ", (int) CODE[i++]);
-				printf("%.2f, ", CODE[i++]);
+				printf("%d, ", (int) CODE[i++]);
 				if(CODE[i-1] == 0)
-					printf("%d\n", (int) CODE[i++]);
-           		else
+					printf("%c\n", (char) CODE[i++]);
+         	    else
 					if(CODE[i-1] == 1)
 						printf("%d\n", (int) CODE[i++]);
-               		else
-						printf("%d\n", (int) CODE[i++]);
+             	    else
+						printf("%.2f\n", (float) CODE[i++]);
 				break;
 
 			case CRVL:

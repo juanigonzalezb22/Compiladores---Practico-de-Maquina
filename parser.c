@@ -10,8 +10,9 @@ int laotraauxi = 0;
 int vienepar= 0;
 int yaHizoIMPRCS = 0;
 int AGREGAR_CAST_A = 0;	// 0 = no hacer cast, 1 = int , 2 = float	
-
 int memoriaADevolver = 0;
+
+int valorExpresion = 0;
 
 int main(int argc, char *argv[])
 {
@@ -37,18 +38,14 @@ int main(int argc, char *argv[])
 	if (GEN == 1 ){
 		CODE[contador++] = PARAR;
 		impr_codgen2();
-		//guardar_codgen(CODE,CONSTANTES_STRING,"prueba.txt");
-        // Recorre la estructura hasta encontrar /0
         int i;
 		for (i = 0; argv[2][i] != '\0'; ++i)
         {
         }
-        argv[2][i] = '\0';    // Deja el /0 al final
-        argv[2][i - 1] = 'o'; // Cambia la c por la o
-
-        // Se guarda la memoria de programa, constantes string y el .o
+        argv[2][i] = '\0'; 
+        argv[2][i - 1] = 'o'; 
         if (guardar_codgen(CODE, CONSTANTES_STRING, argv[2]) == 0)
-            printf("No se pudo guardar el archivo.\n");
+            printf("El archivo no se pudo guardar.\n");
 	}
 	return 0;
 }
@@ -69,13 +66,11 @@ void unidad_traduccion(set folset)
 		error_handler(84); 
 		GEN = 0;
 	}
-	
 	if(GEN){
 		CODE[contador++] = FINB;
 		CODE[contador++] = get_nivel();
 	}
 	pop_nivel(); 
-
 }
 
 
@@ -162,9 +157,7 @@ void especificador_declaracion(set folset)
 	case CCOMA:
 	case CPYCOMA:
 		inf_id->clase = CLASVAR;
-		//errores_semanticos[ ES_CLASE_VARIABLE ] = 1;
 		declaracion_variable(folset);
-		//errores_semanticos[ ES_CLASE_VARIABLE ] = 0;
 		break;
 	default:
 		error_handler(19);
@@ -176,8 +169,6 @@ void especificador_declaracion(set folset)
 void definicion_funcion(set folset)
 {	
 	int desp_aux = desp;
-	// int memoriaAux = memoriaADevolver;
-	// memoriaADevolver = 0;
 	pushTB();  
 	if(GEN){
 		CODE[contador++] = ENBL;
@@ -200,16 +191,11 @@ void definicion_funcion(set folset)
 	
 	
 	if(GEN){
-		// if( memoriaADevolver > 0 ){
-		// 	CODE[contador++] = DMEM;
-		// 	CODE[contador++] = memoriaADevolver;
-		// }
 		CODE[contador++] = FINB;
 		CODE[contador++] = get_nivel();
 	}
 	pop_nivel();
 	desp = desp_aux;
-	//memoriaADevolver = memoriaAux;
 }
 
 
@@ -429,12 +415,12 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 		
 		if(entro_asignacion) {
 			CODE[contador++] = CRCT ;
-			CODE[contador++] = constante_aux;
 			
 			switch ( etapa3[TIPO_CONSTANTE] )
 			{
 			case 0:		//CHAR
 				CODE[contador++] = 0 ;
+				CODE[contador++] = constante_aux;
 				CODE[contador++] = ALM ;
 				CODE[contador++] = inf_id->desc.nivel;
 				CODE[contador++] = inf_id->desc.despl;
@@ -442,6 +428,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 				break;
 			case 1:		//INT
 				CODE[contador++] = 1 ;
+				CODE[contador++] = constante_aux;
 				CODE[contador++] = ALM ;
 				CODE[contador++] = inf_id->desc.nivel;
 				CODE[contador++] = inf_id->desc.despl;
@@ -449,6 +436,7 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 				break;
 			case 2:		//FLOAT
 				CODE[contador++] = 2 ;
+				CODE[contador++] = constante_aux;
 				CODE[contador++] = ALM ;
 				CODE[contador++] = inf_id->desc.nivel;
 				CODE[contador++] = inf_id->desc.despl;
@@ -676,7 +664,7 @@ void proposicion_iteracion(set folset)
 	
 	if(GEN){
 		CODE[contador++] = BIFF;
-		CODE[contador++] = CODE[contador-2];
+		CODE[contador++] = valorExpresion; //CODE[contador-2];
 		salto = contador;
 		contador++;	
 	}
@@ -763,7 +751,6 @@ void proposicion_e_s(set folset)
 		match(CSHR, 30);
 		if (GEN){
 			CODE[contador++]= LEER;
-			//printf("%s", ts[en_tabla(lookahead_lexema())].ets->nbre);
 			if (ts[en_tabla(lookahead_lexema())].ets->ptr_tipo != en_tabla("TIPOARREGLO")) {
 				if (ts[en_tabla(lookahead_lexema())].ets->ptr_tipo == en_tabla("char")){
 					CODE[contador++] = 0;
@@ -793,7 +780,7 @@ void proposicion_e_s(set folset)
 			}
 			CODE[contador++] = ALM;
 			CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.nivel;
-			CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.despl; //???
+			CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.despl;
 			CODE[contador++] = aux;
 		}
 		variable(folset | CSHR | CIDENT | CPYCOMA);
@@ -831,7 +818,7 @@ void proposicion_e_s(set folset)
 				}
 				CODE[contador++] = ALM;
 				CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.nivel;
-				CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.despl; //???
+				CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.despl;
 				CODE[contador++] = aux;
 			}
 			variable(folset | CSHR | CIDENT | CPYCOMA);
@@ -1100,8 +1087,10 @@ void expresion(set folset)
 				}
 				if( etapa3[VALOR_RELACION1] > etapa3[VALOR_RELACION2]){
 					CODE[contador++] = etapa3[VALOR_RELACION1];
+					valorExpresion = etapa3[VALOR_RELACION1];
 				} else {
 					CODE[contador++] = etapa3[VALOR_RELACION2];
+					valorExpresion = etapa3[VALOR_RELACION2];
 				}
 			}
 			if( etapa3[CANT_RELACIONES2] > 1 )
@@ -1123,24 +1112,10 @@ void expresion_simple(set folset)
 		if (lookahead_in(CMENOS)){
 			laotraauxi = 1;
 		}
-		//if (lookahead_in(CMAS)){
-		//	sum_resta = 1;
-		//}
-		//else{
-		//	sum_resta = 2;
-		//}
 		scanner();
 	}
 	termino(folset | CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CMAS | CMENOS | CPAR_ABR | CNEG | COR);
 	if (GEN){
-	//	if (sum_resta == 1){
-	//		CODE[contador++] = SUM;
-	//			CODE[contador++] = 2;
-	//	}
-	//	else if (sum_resta == 2){
-	//		CODE[contador++] = SUB;
-	//		CODE[contador++] = 0;
-	//	}
 		if (lo_anterior == 2){
 			tipo_opauxi = 2;
 		}
@@ -1207,14 +1182,6 @@ void termino(set folset)
 	int tipo_op, tipo_opauxi;
 	factor(folset | CIDENT | CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CPAR_ABR | CNEG | CMULT | CDIV | CAND);
 	if (GEN){
-	//	if (sum_resta == 1){
-	//		CODE[contador++] = SUM;
-	//			CODE[contador++] = 2;
-	//	}
-	//	else if (sum_resta == 2){
-	//		CODE[contador++] = SUB;
-	//		CODE[contador++] = 0;
-	//	}
 		if (lo_anterior == 2){
 			tipo_opauxi = 2;
 		}
@@ -1378,38 +1345,34 @@ void factor(set folset)
 					}
 				}
 				if(GEN){
-					// if( etapa3[FLAG_LLAMADA_FUN] == 0 || (etapa3[FLAG_LLAMADA_FUN] == 1 && etapa3[PASAJE_POR_REF] == 0))
-					// {
-						CODE[contador++] = CRVL;
-						CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.nivel;
-						CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.despl;
-						posvar = en_tabla(lookahead_lexema());
-						if(errores_semanticos[ES_CHAR]==1 || errores_semanticos[ES_ARRCHAR]==1){
+					CODE[contador++] = CRVL;
+					CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.nivel;
+					CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.despl;
+					posvar = en_tabla(lookahead_lexema());
+					if(errores_semanticos[ES_CHAR]==1 || errores_semanticos[ES_ARRCHAR]==1){
+						CODE[contador++] = 0;
+						valorExpresion = 0;
+						if(AGREGAR_CAST_A != 0){
+							CODE[contador++] = CAST;
 							CODE[contador++] = 0;
-							if(AGREGAR_CAST_A != 0){
-								CODE[contador++] = CAST;
-								CODE[contador++] = 0;
-								CODE[contador++] = AGREGAR_CAST_A;
-							}
-						} else if (errores_semanticos[ES_INT]==1 || errores_semanticos[ES_ARRINT]==1)
-						{
-							CODE[contador++] = 1;
-							if(AGREGAR_CAST_A != 0){
-								CODE[contador++] = CAST;
-								CODE[contador++] = 1;
-								CODE[contador++] = AGREGAR_CAST_A;
-							}
-						} else {
-							CODE[contador++] = 2;
+							CODE[contador++] = AGREGAR_CAST_A;
+							valorExpresion = AGREGAR_CAST_A;
 						}
-					//} 
-					// else {
-					// 	CODE[contador++] = CRDI;
-					// 	CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.nivel;
-					// 	CODE[contador++] = ts[en_tabla(lookahead_lexema())].ets->desc.despl;
-					// }
+					} else if (errores_semanticos[ES_INT]==1 || errores_semanticos[ES_ARRINT]==1)
+					{
+						CODE[contador++] = 1;
+						valorExpresion = 1;
+						if(AGREGAR_CAST_A != 0){
+							CODE[contador++] = CAST;
+							CODE[contador++] = 1;
+							CODE[contador++] = AGREGAR_CAST_A;
+							valorExpresion = AGREGAR_CAST_A;
+						}
+					} else {
+						CODE[contador++] = 2;
+						valorExpresion = 2;
+					}
 				}
-
 				match(CIDENT, 17);
 				if( lookahead_in(CPAR_ABR) ){
 					error_handler(99);
@@ -1434,20 +1397,22 @@ void factor(set folset)
 			case 0: if(etapa3[VALOR_NEG] < 0) etapa3[VALOR_NEG] = 0;
 					if(etapa3[VALOR_RELACION1] < 0) etapa3[VALOR_RELACION1] = 0; 
 					if(etapa3[VALOR_RELACION2] < 0) etapa3[VALOR_RELACION2] = 0; 
+					valorExpresion = 0;
 					break;
 			case 1: if(etapa3[VALOR_NEG] < 1) etapa3[VALOR_NEG] = 1;
 					if(etapa3[VALOR_RELACION1] < 1) etapa3[VALOR_RELACION1] = 1;  
-					if(etapa3[VALOR_RELACION2] < 1) etapa3[VALOR_RELACION2] = 1;  
+					if(etapa3[VALOR_RELACION2] < 1) etapa3[VALOR_RELACION2] = 1;
+					valorExpresion = 1;  
 					break;
 			case 2:	if(etapa3[VALOR_NEG] < 2) etapa3[VALOR_NEG] = 2; 
 					if(etapa3[VALOR_RELACION1] < 2) etapa3[VALOR_RELACION1] = 2;
-					if(etapa3[VALOR_RELACION2] < 2) etapa3[VALOR_RELACION2] = 2;  
+					if(etapa3[VALOR_RELACION2] < 2) etapa3[VALOR_RELACION2] = 2;
+					valorExpresion = 2;  
 					break;
 			default: break;
 		}
 		if(GEN){
 			CODE[contador++] = CRCT ;
-			CODE[contador++] = constante_aux;
 			switch ( etapa3[TIPO_CONSTANTE] )
 			{
 				case 0: CODE[contador++] = 0; break;
@@ -1455,6 +1420,7 @@ void factor(set folset)
 				case 2: CODE[contador++] = 2; break;
 				default: break;
 			}
+			CODE[contador++] = constante_aux;
 		}
 		break;
 
@@ -1490,10 +1456,6 @@ void factor(set folset)
 
 	case CNEG:
 		scanner();
-		// if (Tipo_Ident(sbol->lexema) == en_tabla("void") || Clase_Ident(sbol->lexema) == NIL ){
-		// 	error_handler(96);
-		// 	GEN = 0;
-		// }
 		if( !etapa3[CANT_NEGACIONES] == 0 )
 			valorNegAux = etapa3[VALOR_NEG];
 		etapa3[VALOR_NEG] = -1;

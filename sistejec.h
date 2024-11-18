@@ -16,7 +16,7 @@
 
 /* ================== DEFINICI�N DE VARIABLES ==================== */
 
-float CODE[TAM_PROG]; //O se usa el P[]?
+float CODE[TAM_PROG]; 
 int GEN;
 char CONSTANTES_STRING[TAM_CTES];
     
@@ -84,7 +84,7 @@ char CONSTANTES_STRING[TAM_CTES];
 
 int cargar_codgen(char *);
 int guardar_codgen(float [], char [], char *);
-void impr_codgen(); //Será?
+void impr_codgen();
 void interprete();
 
 void impr_codgen2();
