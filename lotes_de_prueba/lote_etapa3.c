@@ -1,5 +1,4 @@
 void main() {
-  char y[5];
   int a = 5, e, f, p;
   float b = 3.2, h;
   char c = 'a', z = 'Z';
@@ -7,10 +6,10 @@ void main() {
     int x;
   }
   
-  while( a + ( b - 3.5) == c ){
+  while( b == h ){
     int a;
   }
-  h = 5.7 * (e + (f = p));
+  h = 5.5 + 7.3;
   
   cout << "HOLA" << a << "CHAU" ;
 

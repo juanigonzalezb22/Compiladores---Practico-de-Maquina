@@ -9,8 +9,9 @@ int lo_anterior = -1;
 int laotraauxi = 0;
 int vienepar= 0;
 int yaHizoIMPRCS = 0;
-
 int AGREGAR_CAST_A = 0;	// 0 = no hacer cast, 1 = int , 2 = float	
+
+int memoriaADevolver = 0;
 
 int main(int argc, char *argv[])
 {
@@ -175,6 +176,8 @@ void especificador_declaracion(set folset)
 void definicion_funcion(set folset)
 {	
 	int desp_aux = desp;
+	// int memoriaAux = memoriaADevolver;
+	// memoriaADevolver = 0;
 	pushTB();  
 	if(GEN){
 		CODE[contador++] = ENBL;
@@ -197,11 +200,16 @@ void definicion_funcion(set folset)
 	
 	
 	if(GEN){
+		// if( memoriaADevolver > 0 ){
+		// 	CODE[contador++] = DMEM;
+		// 	CODE[contador++] = memoriaADevolver;
+		// }
 		CODE[contador++] = FINB;
 		CODE[contador++] = get_nivel();
 	}
 	pop_nivel();
 	desp = desp_aux;
+	//memoriaADevolver = memoriaAux;
 }
 
 
@@ -415,23 +423,35 @@ test(CASIGNAC | CCOR_ABR | folset, CCOR_CIE| CLLA_ABR | CLLA_CIE, 47);
 	// Para este punto la cant_byte de la variable a cargar ya esta calculada.
 	if( GEN == 1 ){
 		CODE[contador++] = ALOC ;
-		//contador++;
 		CODE[contador++] = inf_id->cant_byte;
-		//contador++;
+		
+		memoriaADevolver += inf_id->cant_byte;
+		
 		if(entro_asignacion) {
 			CODE[contador++] = CRCT ;
 			CODE[contador++] = constante_aux;
-			//CODE[contador++] = inf_id->desc.nivel ;
-			//CODE[contador++] = 0 ; //inf_id->desc.despl
+			
 			switch ( etapa3[TIPO_CONSTANTE] )
 			{
 			case 0:		//CHAR
 				CODE[contador++] = 0 ;
+				CODE[contador++] = ALM ;
+				CODE[contador++] = inf_id->desc.nivel;
+				CODE[contador++] = inf_id->desc.despl;
+				CODE[contador++] = 0 ;
 				break;
 			case 1:		//INT
 				CODE[contador++] = 1 ;
+				CODE[contador++] = ALM ;
+				CODE[contador++] = inf_id->desc.nivel;
+				CODE[contador++] = inf_id->desc.despl;
+				CODE[contador++] = 1 ;
 				break;
 			case 2:		//FLOAT
+				CODE[contador++] = 2 ;
+				CODE[contador++] = ALM ;
+				CODE[contador++] = inf_id->desc.nivel;
+				CODE[contador++] = inf_id->desc.despl;
 				CODE[contador++] = 2 ;
 				break;
 			default: break;
@@ -509,6 +529,9 @@ void lista_inicializadores(set folset)
 
 void proposicion_compuesta(set folset)
 {
+	int memoriaAux = memoriaADevolver;
+	memoriaADevolver = 0;
+
 	test(CLLA_ABR, folset | CLLA_CIE | CVOID | CCHAR | CINT | CFLOAT | CMAS | CMENOS | CIDENT | CPAR_ABR | CNEG |
 	 		CCONS_ENT | CCONS_FLO | CCONS_CAR | CCONS_STR | CIF | CWHILE | CIN | COUT | CPYCOMA | CRETURN, 49);
 	match(CLLA_ABR, 24);
@@ -529,7 +552,15 @@ void proposicion_compuesta(set folset)
 			GEN = 0;
 		}
 	}
+	if(GEN){
+		if( memoriaADevolver > 0 ){
+			CODE[contador++] = DMEM;
+			CODE[contador++] = memoriaADevolver;
+		}
+	}
+
 	match(CLLA_CIE, 25);
+	memoriaADevolver = memoriaAux;
 	test(folset, NADA , 50);
 }
 
@@ -660,12 +691,12 @@ void proposicion_iteracion(set folset)
 	proposicion(folset);
 
 	if(GEN){
+		CODE[contador++] = FINB;
+		CODE[contador++] = get_nivel();
+
 		CODE[contador++] = BIFS ;
 		CODE[contador++] = desplazamientoAux ;
 		CODE[salto] = contador;
-		
-		CODE[contador++] = FINB;
-		CODE[contador++] = get_nivel();
 	}
 	pop_nivel();
 }

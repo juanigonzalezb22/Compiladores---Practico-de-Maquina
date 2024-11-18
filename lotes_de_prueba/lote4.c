@@ -8,4 +8,7 @@ cout<<a;
 cout<<"asignacion--------";
 a=b;
 cout<<a;
+while(b){
+    
+}
 }
