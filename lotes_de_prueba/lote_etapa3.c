@@ -1,7 +1,3 @@
-char fun1(){
-  return 'a';
-}
-
 void main() {
   char y[5];
   int a = 5, e, f, p;
@@ -15,8 +11,7 @@ void main() {
     int a;
   }
   h = 5.7 * (e + (f = p));
-  fun1();
   
-  cout << a << a << b ;
+  cout << "HOLA" << a << "CHAU" ;
 
 }

@@ -52,8 +52,8 @@ void init_parser(int argc, char *argv[])
 		{
 			if(strcmp(argv[1], "-o") == 0){
 				cargar_codgen(argv[2]);
-				impr_codgen();
 				interprete();
+				impr_codgen();
 				exit(1);
 			}
 			else{

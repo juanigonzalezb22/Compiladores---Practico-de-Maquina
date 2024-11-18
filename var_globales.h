@@ -18,7 +18,7 @@ token token1;
 extern int yylex(void);
 
 
-#define TAM_ETAPA3 8
+#define TAM_ETAPA3 10
 
 int etapa3[TAM_ETAPA3];
 
@@ -30,5 +30,7 @@ int etapa3[TAM_ETAPA3];
 #define VALOR_RELACION2 5
 #define CANT_RELACIONES1 6
 #define CANT_RELACIONES2 7
+#define FLAG_LLAMADA_FUN 8
+#define PASAJE_POR_REF 9
 
 float constante_aux;
